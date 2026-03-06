@@ -1,10 +1,20 @@
 const express = require("express");
+const cors = require("cors");
+
 const app = express();
 
-app.get("/", (req, res) => {
-  res.json({ message: "Backend funcionando 🚀" });
+app.use(cors());
+app.use(express.json());
+
+app.get("/status", (req, res) => {
+  res.json({
+    status: "API funcionando",
+    timestamp: new Date()
+  });
 });
 
-app.listen(3000, () => {
-  console.log("Servidor rodando na porta 3000");
+const PORT = 3000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
