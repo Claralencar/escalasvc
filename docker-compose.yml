@@ -5,11 +5,12 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
       DB_HOST: mysql
       DB_USER: root
-      DB_PASSWORD: root
+      DB_PASSWORD: servicou
       DB_NAME: escala_db
     restart: always
 
@@ -26,12 +27,29 @@ services:
     image: mysql:8
     container_name: grupo4-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: servicou
       MYSQL_DATABASE: escala_db
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: grupo4-phpmyadmin
+    depends_on:
+      - mysql
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      MYSQL_ROOT_PASSWORD: servicou
     restart: always
 
 volumes:
