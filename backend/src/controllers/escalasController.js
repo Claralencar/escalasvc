@@ -21,7 +21,7 @@ exports.criarEscalas = (req, res) => {
         [escala.nome_escala, escala.cor, escala.segmento_participante, escala.regra_ordenacao],
         (err, result) => {
             if(err) {
-                res.status(500),json(err);
+                res.status(500).json(err);
             } else {
                 res.json({message: "Escala criada com sucesso"})
             }
