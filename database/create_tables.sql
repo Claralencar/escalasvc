@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS alunos (
 CREATE TABLE IF NOT EXISTS escalas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome_escala VARCHAR(100) NOT NULL,
-    cor INT NOT NULL,
+    cor ENUM('preta', 'vermelha',   'cinza', 'azul', 'verde', 'amarela', 'rosa', 'roxa', 'laranja') NOT NULL,
     segmento_participante ENUM('feminino','masculino','todos') NOT NULL,
     regra_ordenacao ENUM(
         'nome_guerra_asc',
