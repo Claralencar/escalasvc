@@ -28,6 +28,6 @@ CREATE TABLE IF NOT EXISTS escalas (
 CREATE TABLE IF NOT EXISTS escala_dias_semana (
     id INT AUTO_INCREMENT PRIMARY KEY,
     escala_id INT NOT NULL,
-    dia_semana INT NOT NULL,
-    FOREIGN KEY (escala_id) REFERENCES escalas(id)
+    dia_semana ENUM('segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo') NOT NULL,
+    FOREIGN KEY (escala_id) REFERENCES escalas(id) ON DELETE CASCADE
 );
