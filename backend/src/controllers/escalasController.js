@@ -10,23 +10,28 @@ exports.listarEscalas = (req, res) => {
     });
 };
 
-exports.criarEscalas = (req, res) => {
-    const escala = req.body;
+exports.criarEscalas = async (req, res) => {
+    // Desestruturamos usando os nomes que virão do frontend
+    const { nome_escala, cor, segmento_participante, regra_ordenacao } = req.body;
 
-    const sql = `
-    INSERT INTO escalas (nome_escala, cor, segmento_participante, regra_ordenacao)
-    VALUES(?, ?, ?, ?)`;
+    try {
+        const query = `
+      INSERT INTO escalas (nome_escala, cor, segmento_participante, regra_ordenacao) 
+      VALUES (?, ?, ?, ?)
+    `;
 
-    db.query(sql,
-        [escala.nome_escala, escala.cor, escala.segmento_participante, escala.regra_ordenacao],
-        (err, result) => {
-            if (err) {
-                res.status(500).json(err);
-            } else {
-                res.json({ message: "Escala criada com sucesso" })
-            }
-        }
-    );
+        await db.query(query, [
+            nome_escala,
+            cor.toLowerCase(), // Garantimos que vá minúsculo para o ENUM
+            segmento_participante.toLowerCase(), // Garantimos minúsculo
+            regra_ordenacao
+        ]);
+
+        res.status(201).json({ message: "Escala criada com sucesso!" });
+    } catch (error) {
+        console.error("Erro no DB:", error);
+        res.status(500).json({ error: "Erro ao criar escala no banco" });
+    }
 };
 
 exports.deletarEscalas = (req, res) => {

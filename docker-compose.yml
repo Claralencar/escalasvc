@@ -20,7 +20,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./frontend:/usr/share/nginx/html
+      - ./frontend/dist:/usr/share/nginx/html
     restart: always
 
   mysql:
@@ -36,7 +36,7 @@ services:
       - ./database:/docker-entrypoint-initdb.d
     restart: always
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
       interval: 5s
       timeout: 5s
       retries: 10
