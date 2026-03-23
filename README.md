@@ -92,10 +92,7 @@ Sistema para gerenciamento de alunos e geração automática de escalas de servi
 - Executado via Docker
 
 ### Frontend
-- **HTML5 & CSS3** (Layout responsivo e modais personalizados)
-- **JavaScript (ES6+)**
-- **Chart.js** (Gráficos)
-- **FontAwesome** (Ícones)
+- React
 
 ### Infraestrutura
 - **Docker**
