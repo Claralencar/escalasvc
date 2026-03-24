@@ -1,0 +1,42 @@
+.home-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.menu-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 30px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.btn-menu {
+  background-color: #f0f0f0;
+  color: #333;
+  padding: 15px 20px;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  border: 1px solid #ccc;
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-menu:hover {
+  background-color: #e0e0e0;
+}
+
+.btn-destaque {
+  background-color: #007bff;
+  color: white;
+  border: none;
+}
+
+.btn-destaque:hover {
+  background-color: #0056b3;
+}
