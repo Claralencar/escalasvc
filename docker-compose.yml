@@ -12,16 +12,25 @@ services:
       DB_USER: root
       DB_PASSWORD: servicou
       DB_NAME: escala_db
+      DB_PORT: 3306
+      PORT: 3000
     restart: always
 
   frontend:
-    image: nginx:alpine
+    build: ./frontend
     container_name: grupo4-frontend
     ports:
-      - "8080:80"
+      - "3001:3000"
+    environment:
+      - WDS_SOCKET_PORT=0
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_API_URL=http://localhost:3000
     volumes:
-      - ./frontend:/usr/share/nginx/html
+      - ./frontend:/app
+      - /app/node_modules
     restart: always
+    depends_on:
+      - backend
 
   mysql:
     image: mysql:8
