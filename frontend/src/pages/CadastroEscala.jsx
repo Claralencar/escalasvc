@@ -3,14 +3,84 @@ import api from '../services/api';
 import { Trash2, Plus, Settings } from 'lucide-react';
 import './CadastroEscala.css';
 
+// Array auxiliar para os checkboxes
+const OPCOES_DIAS = [
+  { value: 'segunda', label: 'Seg' },
+  { value: 'terca', label: 'Ter' },
+  { value: 'quarta', label: 'Qua' },
+  { value: 'quinta', label: 'Qui' },
+  { value: 'sexta', label: 'Sex' },
+  { value: 'sabado', label: 'Sáb' },
+  { value: 'domingo', label: 'Dom' }
+];
+
 const CadastroEscala = () => {
   const [escalas, setEscalas] = useState([]);
+
+  // 1. Adicionamos 'dias_semana' ao estado inicial
   const [formData, setFormData] = useState({
     nome_escala: '',
     cor: 'preta',
     segmento_participante: 'todos',
-    regra_ordenacao: 'alfabetica_guerra' // Valor inicial corrigido para o ENUM do banco
+    regra_ordenacao: 'nome_guerra_asc',
+    dias_semana: ['segunda', 'terca', 'quarta', 'quinta', 'sexta'] // Padrão para escala preta
   });
+
+
+  // 2. Lógica para mudar os dias automaticamente quando a cor muda
+  const handleCorChange = (e) => {
+    const novaCor = e.target.value;
+    let novosDias = [];
+
+    if (novaCor === 'preta') {
+      novosDias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta'];
+    } else if (novaCor === 'vermelha') {
+      novosDias = ['sabado', 'domingo'];
+    }
+
+    setFormData({
+      ...formData,
+      cor: novaCor,
+      dias_semana: novosDias
+    });
+  };
+
+  // 3. Função para marcar/desmarcar dias individuais manualmente
+  const handleDiaToggle = (diaValue) => {
+    setFormData((prev) => {
+      const jaSelecionado = prev.dias_semana.includes(diaValue);
+      if (jaSelecionado) {
+        return { ...prev, dias_semana: prev.dias_semana.filter(d => d !== diaValue) };
+      } else {
+        return { ...prev, dias_semana: [...prev.dias_semana, diaValue] };
+      }
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (formData.dias_semana.length === 0) {
+      alert("Por favor, selecione pelo menos um dia da semana.");
+      return;
+    }
+
+    try {
+      const dadosParaEnviar = {
+        ...formData,
+        cor: formData.cor.toLowerCase(),
+        segmento_participante: formData.segmento_participante.toLowerCase()
+      };
+
+      await api.post('/escalas', dadosParaEnviar);
+      alert("Escala configurada com sucesso!");
+
+      setFormData({ ...formData, nome_escala: '' });
+      carregarEscalas();
+    } catch (error) {
+      console.error("Erro na requisição:", error);
+      alert("Erro ao guardar na base de dados.");
+    }
+  };
 
   useEffect(() => {
     carregarEscalas();
@@ -25,27 +95,6 @@ const CadastroEscala = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Enviamos os dados garantindo que cor e segmento estejam em minúsculo
-      const dadosParaEnviar = {
-        ...formData,
-        cor: formData.cor.toLowerCase(),
-        segmento_participante: formData.segmento_participante.toLowerCase()
-      };
-
-      await api.post('/escalas', dadosParaEnviar);
-      alert("Escala configurada com sucesso!");
-
-      // Limpa apenas o nome, mantém as preferências de config para facilitar o próximo cadastro
-      setFormData({ ...formData, nome_escala: '' });
-      carregarEscalas();
-    } catch (error) {
-      console.error("Erro na requisição:", error.response?.data || error.message);
-      alert("Erro ao salvar no banco de dados. Verifique os valores permitidos.");
-    }
-  };
 
   const handleDelete = async (id) => {
     if (window.confirm("Deseja realmente excluir esta configuração?")) {
@@ -61,7 +110,7 @@ const CadastroEscala = () => {
   return (
     <div className="escala-container">
       <header className="header-view">
-        <h1><Settings className="icon" /> F2: Cadastro da Escala</h1>
+        <h1><Settings className="icon" />Cadastro da Escala</h1>
       </header>
 
       <div className="main-content">
@@ -100,7 +149,6 @@ const CadastroEscala = () => {
                   <select value={formData.cor} onChange={(e) => setFormData({ ...formData, cor: e.target.value })}>
                     <option value="preta">Preta</option>
                     <option value="vermelha">Vermelha</option>
-                    <option value="cinza">Cinza</option>
                   </select>
                 </div>
                 <div className="form-field">

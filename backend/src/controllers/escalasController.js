@@ -1,13 +1,15 @@
-const db = require("../database/db")
+const db = require("../database/db");
 
-exports.listarEscalas = (req, res) => {
-    db.query("SELECT * FROM escalas", (err, results) => {
-        if (err) {
-            res.status(500).json(err);
-        } else {
-            res.json(results);
-        }
-    });
+exports.listarEscalas = async (req, res) => {
+    try {
+        // Usamos a desestruturação [results] porque o mysql2 retorna um array 
+        // onde a primeira posição são os dados e a segunda os metadados da tabela.
+        const [results] = await db.promise().query("SELECT * FROM escalas");
+        res.json(results);
+    } catch (err) {
+        console.error("Erro ao listar escalas:", err);
+        res.status(500).json({ error: "Erro ao buscar escalas no banco de dados" });
+    }
 };
 
 exports.criarEscalas = async (req, res) => {
@@ -20,7 +22,7 @@ exports.criarEscalas = async (req, res) => {
       VALUES (?, ?, ?, ?)
     `;
 
-        await db.query(query, [
+        await db.promise().query(query, [
             nome_escala,
             cor.toLowerCase(), // Garantimos que vá minúsculo para o ENUM
             segmento_participante.toLowerCase(), // Garantimos minúsculo
@@ -34,18 +36,21 @@ exports.criarEscalas = async (req, res) => {
     }
 };
 
-exports.deletarEscalas = (req, res) => {
+exports.deletarEscalas = async (req, res) => {
     const id = req.params.id;
-
     const sql = `DELETE FROM escalas WHERE id = ?`;
 
-    db.query(sql, [id], (err, result) => {
-        if (err) {
-            res.status(500).json(err);
-        } else if (result.affectedRows === 0) {
-            res.status(404).json({ message: "Escala não escontrada" });
+    try {
+        const [result] = await db.promise().query(sql, [id]);
+
+        // Verificamos se alguma linha foi realmente afetada pelo DELETE
+        if (result.affectedRows === 0) {
+            res.status(404).json({ message: "Escala não encontrada" });
         } else {
             res.json({ message: "Escala deletada com sucesso" });
         }
-    });
+    } catch (err) {
+        console.error("Erro ao deletar escala:", err);
+        res.status(500).json({ error: "Erro ao deletar escala no banco de dados" });
+    }
 };
