@@ -1,14 +1,14 @@
 const express = require("express");
 const cors = require("cors");
-
 const alunosRoutes = require("./routes/alunos");
-const escalasRoutes = require("./routes/escalas");
+const escalasRoutes = require("./routes/escalas"); // 1. ADICIONE ESTA LINHA
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+// Rota de status
 app.get("/status", (req, res) => {
   res.json({
     status: "API funcionando",
@@ -16,11 +16,12 @@ app.get("/status", (req, res) => {
   });
 });
 
+// Rotas da aplicação
 app.use("/alunos", alunosRoutes);
-app.use("/escalas", escalasRoutes);
+app.use("/escalas", escalasRoutes); // 2. ADICIONE ESTA LINHA
 
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
