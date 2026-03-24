@@ -144,6 +144,66 @@ td {
   background: #e53e3e;
 }
 
+/* Organização do Formulário */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  /* Dá espaço automático entre todos os campos */
+  margin-bottom: 40px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  /* Garante que os labels fiquem na esquerda */
+}
+
+/* Se quiser alinhar campos lado a lado (ex: Cor e Segmento) */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Duas colunas de tamanho igual */
+  gap: 20px;
+}
+
+/* Estilo padrão e bonito para Inputs e Selects */
+input[type="text"],
+input[type="email"],
+select {
+  padding: 10px 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+input:focus,
+select:focus {
+  border-color: #007bff;
+}
+
+/* Botão de Salvar/Gerar */
+button[type="submit"] {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  align-self: flex-start;
+  /* Impede que o botão estique pela tela toda */
+}
+
+button[type="submit"]:hover {
+  background-color: #0056b3;
+}
+
 .btn-icon-delete {
   background: none;
   border: none;

@@ -1,38 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import './Home.css'; // Opcional, caso tenha estilos específicos para a home
 
 const Home = () => {
-  const [alunos, setAlunos] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Chamada para o seu backend Node.js que está na porta 3000
-    axios.get('http://localhost:3000/alunos')
-      .then(response => {
-        setAlunos(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error("Erro ao buscar dados:", error);
-        setLoading(false);
-      });
-  }, []);
-
   return (
-    <div style={{ padding: '20px' }}>
-      <h1>Bem-vindo ao Auto Escala</h1>
-      <p>Status da API: {loading ? 'Carregando...' : 'Conectado'}</p>
+    <div className="home-container">
+      <h1>Bem-vindo ao Sistema de Escalas</h1>
+      <p>Selecione uma das opções abaixo para começar:</p>
 
-      <h2>Lista de Alunos (Dados da API):</h2>
-      {alunos.length > 0 ? (
-        <ul>
-          {alunos.map(aluno => (
-            <li key={aluno.id}>{aluno.nome_guerra} - {aluno.turma}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>Nenhum aluno encontrado ou API offline.</p>
-      )}
+      <div className="menu-opcoes">
+        {/* Botão para Configurar Escalas (F2) */}
+        <Link to="/cadastro-escala" className="btn-menu">
+          Configurar Regras de Escala
+        </Link>
+
+        {/* Botão para Lista de Alunos */}
+        <Link to="/alunos" className="btn-menu">
+          Ver Lista de Alunos
+        </Link>
+
+        {/* NOVO Botão para a Aba de Geração/Visualização da Escala */}
+        <Link to="/escala" className="btn-menu btn-destaque">
+          Visualizar / Gerar Escalas
+        </Link>
+      </div>
     </div>
   );
 };

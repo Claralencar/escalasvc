@@ -1,0 +1,48 @@
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  /* Adiciona barra de rolagem no celular se a tabela for muito larga */
+  margin-top: 20px;
+}
+
+.alunos-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  background-color: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  /* Garante que as bordas arredondadas funcionem nos cantos */
+  box-shadow: 0 0 0 1px #eaedf1;
+  /* Uma borda sutil em volta de toda a tabela */
+}
+
+.alunos-table th,
+.alunos-table td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #eaedf1;
+}
+
+.alunos-table th {
+  background-color: #f8f9fa;
+  color: #495057;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.alunos-table td {
+  color: #333;
+  font-size: 15px;
+}
+
+.alunos-table tbody tr:hover {
+  background-color: #f1f4f6;
+  /* Efeito de hover (fundo cinza) ao passar o mouse na linha */
+}
+
+/* Remove a linha de baixo da última célula para não ficar dupla com o container */
+.alunos-table tbody tr:last-child td {
+  border-bottom: none;
+}
