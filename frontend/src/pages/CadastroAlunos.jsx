@@ -1,72 +1,95 @@
-import React, { useState, useEffect } from 'react';
-import api from '../services/api';
-import './CadastroAlunos.css'; // Vamos criar um CSS para a tabela ficar bonita!
+import { useEffect, useState } from "react";
+import AlunoForm from "../components/AlunoForm";
+import AlunoList from "../components/AlunoList";
+import {
+  listarAlunos,
+  criarAluno,
+  atualizarAluno,
+  excluirAluno,
+} from "../services/alunoService";
 
-const CadastroAlunos = () => {
+function CadastroAlunos() {
   const [alunos, setAlunos] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState('');
+  const [alunoEmEdicao, setAlunoEmEdicao] = useState(null);
+  const [mensagem, setMensagem] = useState("");
+  const [erro, setErro] = useState("");
 
-  // Busca os alunos assim que o componente é montado na tela
+  async function carregarAlunos() {
+    try {
+      const dados = await listarAlunos();
+      setAlunos(dados);
+      setErro("");
+    } catch (error) {
+      setErro("Não foi possível carregar os alunos.");
+    }
+  }
+
   useEffect(() => {
     carregarAlunos();
   }, []);
 
-  const carregarAlunos = async () => {
+  async function handleSubmit(formData) {
     try {
-      setLoading(true);
-      const response = await api.get('/alunos');
-      setAlunos(response.data);
-      setErro('');
+      if (alunoEmEdicao) {
+        await atualizarAluno(alunoEmEdicao.matricula, formData);
+        setMensagem("Aluno atualizado com sucesso.");
+      } else {
+        await criarAluno(formData);
+        setMensagem("Aluno cadastrado com sucesso.");
+      }
+
+      setAlunoEmEdicao(null);
+      setErro("");
+      carregarAlunos();
     } catch (error) {
-      console.error("Erro ao buscar alunos:", error);
-      setErro('Não foi possível carregar a lista de alunos. Verifique a conexão com o servidor.');
-    } finally {
-      setLoading(false);
+      setErro("Erro ao salvar aluno.");
     }
-  };
+  }
+
+  async function handleDelete(matricula) {
+    const confirmar = window.confirm("Deseja realmente excluir este aluno?");
+    if (!confirmar) return;
+
+    try {
+      await excluirAluno(matricula);
+      setMensagem("Aluno excluído com sucesso.");
+      setErro("");
+      carregarAlunos();
+    } catch (error) {
+      setErro("Erro ao excluir aluno.");
+    }
+  }
+
+  function handleEdit(aluno) {
+    setAlunoEmEdicao(aluno);
+    setMensagem("");
+    setErro("");
+  }
+
+  function cancelarEdicao() {
+    setAlunoEmEdicao(null);
+  }
 
   return (
-    <div>
-      <h1>Lista de Alunos</h1>
+    <div className="container">
+      <h1>F1 - Cadastro de Alunos da Escala</h1>
 
-      {loading && <p>Carregando alunos...</p>}
+      {mensagem && <p className="mensagem sucesso">{mensagem}</p>}
+      {erro && <p className="mensagem erro">{erro}</p>}
 
-      {erro && <p style={{ color: 'red' }}>{erro}</p>}
+      <AlunoForm
+        onSubmit={handleSubmit}
+        alunoEmEdicao={alunoEmEdicao}
+        cancelarEdicao={cancelarEdicao}
+      />
 
-      {!loading && !erro && alunos.length === 0 && (
-        <p>Nenhum aluno cadastrado no banco de dados ainda.</p>
-      )}
-
-      {!loading && !erro && alunos.length > 0 && (
-        <div className="table-responsive">
-          <table className="alunos-table">
-            <thead>
-              <tr>
-                <th>Matrícula</th>
-                <th>Nome de Guerra</th>
-                <th>Nome Completo</th>
-                <th>Turma</th>
-                <th>Segmento</th>
-              </tr>
-            </thead>
-            <tbody>
-              {alunos.map((aluno) => (
-                <tr key={aluno.matricula}>
-                  <td>{aluno.matricula}</td>
-                  <td>{aluno.nome_guerra}</td>
-                  <td>{aluno.nome_completo}</td>
-                  <td>{aluno.turma}</td>
-                  {/* Capitalizando a primeira letra do segmento para ficar bonito */}
-                  <td style={{ textTransform: 'capitalize' }}>{aluno.segmento}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <AlunoList
+        alunos={alunos}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
     </div>
   );
-};
+}
 
 export default CadastroAlunos;
