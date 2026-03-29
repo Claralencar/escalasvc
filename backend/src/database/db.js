@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 const mysql = require('mysql2');
+=======
+const mysql = require("mysql2");
+>>>>>>> Stashed changes
 
 const connection = mysql.createConnection({
     host: "mysql",
