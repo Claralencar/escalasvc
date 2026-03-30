@@ -1,3 +1,8 @@
+import "./CadastroAlunos.css";
+import "../index.css";
+
+import "../App.css";
+import "./CadastroAlunos.css";
 import { useEffect, useState } from "react";
 import AlunoForm from "../components/AlunoForm";
 import AlunoList from "../components/AlunoList";
@@ -72,7 +77,7 @@ function CadastroAlunos() {
 
   return (
     <div className="container">
-      <h1>F1 - Cadastro de Alunos da Escala</h1>
+      <h1>Cadastro de Alunos da Escala</h1>
 
       {mensagem && <p className="mensagem sucesso">{mensagem}</p>}
       {erro && <p className="mensagem erro">{erro}</p>}

@@ -1,31 +1,25 @@
 import { useState, useEffect } from "react";
 
 function AlunoForm({ onSubmit, alunoEmEdicao, cancelarEdicao }) {
-  const [formData, setFormData] = useState({
+  // Padronização: Todos os campos em snake_case para bater com o Banco de Dados
+  const estadoInicial = {
     matricula: "",
-    nomeGuerra: "",
-    nomeCompleto: "",
+    nome_guerra: "",
+    nome_completo: "",
     turma: "",
-    segmento: "masculino",
+    segmento: "Masculino", // Padronizado com a primeira letra maiúscula para o ENUM
     funcao: "",
-    estadoSaude: "",
-    emailInstitucional: "",
-  });
+    estado_saude: "",
+    email_institucional: "",
+  };
+
+  const [formData, setFormData] = useState(estadoInicial);
 
   useEffect(() => {
     if (alunoEmEdicao) {
       setFormData(alunoEmEdicao);
     } else {
-      setFormData({
-        matricula: "",
-        nomeGuerra: "",
-        nomeCompleto: "",
-        turma: "",
-        segmento: "masculino",
-        funcao: "",
-        estadoSaude: "",
-        emailInstitucional: "",
-      });
+      setFormData(estadoInicial);
     }
   }, [alunoEmEdicao]);
 
@@ -50,7 +44,7 @@ function AlunoForm({ onSubmit, alunoEmEdicao, cancelarEdicao }) {
         type="text"
         name="matricula"
         placeholder="Matrícula"
-        value={formData.matricula}
+        value={formData.matricula || ""}
         onChange={handleChange}
         disabled={!!alunoEmEdicao}
         required
@@ -58,18 +52,18 @@ function AlunoForm({ onSubmit, alunoEmEdicao, cancelarEdicao }) {
 
       <input
         type="text"
-        name="nomeGuerra"
+        name="nome_guerra"
         placeholder="Nome de guerra"
-        value={formData.nomeGuerra}
+        value={formData.nome_guerra || ""}
         onChange={handleChange}
         required
       />
 
       <input
         type="text"
-        name="nomeCompleto"
+        name="nome_completo"
         placeholder="Nome completo"
-        value={formData.nomeCompleto}
+        value={formData.nome_completo || ""}
         onChange={handleChange}
         required
       />
@@ -78,44 +72,44 @@ function AlunoForm({ onSubmit, alunoEmEdicao, cancelarEdicao }) {
         type="text"
         name="turma"
         placeholder="Turma"
-        value={formData.turma}
+        value={formData.turma || ""}
         onChange={handleChange}
         required
       />
 
       <select
         name="segmento"
-        value={formData.segmento}
+        value={formData.segmento || "Masculino"}
         onChange={handleChange}
         required
       >
-        <option value="masculino">Masculino</option>
-        <option value="feminino">Feminino</option>
+        <option value="Masculino">Masculino</option>
+        <option value="Feminino">Feminino</option>
       </select>
 
       <input
         type="text"
         name="funcao"
         placeholder="Função"
-        value={formData.funcao}
+        value={formData.funcao || ""}
         onChange={handleChange}
         required
       />
 
       <input
         type="text"
-        name="estadoSaude"
+        name="estado_saude" // Ajustado: de estadoSaude para estado_saude
         placeholder="Estado de saúde"
-        value={formData.estadoSaude}
+        value={formData.estado_saude || ""}
         onChange={handleChange}
         required
       />
 
       <input
         type="email"
-        name="emailInstitucional"
+        name="email_institucional" // Ajustado: de emailInstitucional para email_institucional
         placeholder="E-mail institucional"
-        value={formData.emailInstitucional}
+        value={formData.email_institucional || ""}
         onChange={handleChange}
         required
       />

@@ -1,13 +1,12 @@
 CREATE TABLE IF NOT EXISTS alunos (
-    matricula INT NOT NULL,
-    nome_guerra VARCHAR(100),
-    nome_completo VARCHAR(255),
-    turma ENUM('30','29','28','27','26') NOT NULL,
-    segmento ENUM('feminino','masculino','todos') NOT NULL,
-    funcao ENUM('Sargenteante','Aux de Cmd','Cmd Pel','Cmd Cia'),
-    estado_saude ENUM('Apto','Baixado') NOT NULL,
-    email_institucional VARCHAR(255),
-    PRIMARY KEY (matricula)
+    matricula VARCHAR(50) NOT NULL PRIMARY KEY,
+    nome_guerra VARCHAR(100) NOT NULL,
+    nome_completo VARCHAR(255) NOT NULL,
+    turma VARCHAR(50) NOT NULL,
+    segmento ENUM('Masculino', 'Feminino') NOT NULL,
+    funcao VARCHAR(100),
+    estado_saude VARCHAR(255),
+    email_institucional VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS escalas (

@@ -15,14 +15,15 @@ services:
     restart: always
 
   frontend:
-    image: nginx:alpine
+    build: ./frontend
     container_name: grupo4-frontend
     ports:
-      - "8080:80"
+      - "8080:5173" # O seu navegador continuará acessando 8080
     volumes:
-      - ./frontend/dist:/usr/share/nginx/html
-      - ./frontend/nginx.conf:/etc/nginx/conf.d/default.conf
-    restart: always
+      - ./frontend:/app
+      - /app/node_modules # Protege as dependências internas
+    environment:
+      - VITE_CHOKIDAR_USEPOLLING=true
 
   mysql:
     image: mysql:8

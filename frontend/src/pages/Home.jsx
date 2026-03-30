@@ -14,9 +14,9 @@ const Home = () => {
           Configurar Regras de Escala
         </Link>
 
-        {/* Botão para Lista de Alunos */}
+        {/* Botão para Cadastrar de Alunos */}
         <Link to="/alunos" className="btn-menu">
-          Ver Lista de Alunos
+          Cadastrar Alunos
         </Link>
 
         {/* NOVO Botão para a Aba de Geração/Visualização da Escala */}

@@ -1,48 +1,98 @@
+/* Card do Formulário */
+.aluno-form {
+  background: var(--card-bg);
+  padding: 32px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+  max-width: 900px;
+  margin: 0 auto 40px auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.aluno-form h2 {
+  grid-column: span 2;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+.aluno-form input,
+.aluno-form select {
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background-color: #fcfcfc;
+  font-size: 14px;
+}
+
+.aluno-form input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Tabela Estilo Dashboard */
 .table-responsive {
-  width: 100%;
-  overflow-x: auto;
-  /* Adiciona barra de rolagem no celular se a tabela for muito larga */
-  margin-top: 20px;
+  background: var(--card-bg);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-top: 24px;
 }
 
 .alunos-table {
   width: 100%;
   border-collapse: collapse;
-  text-align: left;
-  background-color: #fff;
-  border-radius: 8px;
-  overflow: hidden;
-  /* Garante que as bordas arredondadas funcionem nos cantos */
-  box-shadow: 0 0 0 1px #eaedf1;
-  /* Uma borda sutil em volta de toda a tabela */
-}
-
-.alunos-table th,
-.alunos-table td {
-  padding: 14px 16px;
-  border-bottom: 1px solid #eaedf1;
 }
 
 .alunos-table th {
-  background-color: #f8f9fa;
-  color: #495057;
-  font-weight: 600;
-  font-size: 14px;
+  background-color: #f8fafc;
+  color: var(--text-light);
+  font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-weight: 600;
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
 }
 
 .alunos-table td {
-  color: #333;
-  font-size: 15px;
+  padding: 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: var(--text-dark);
 }
 
-.alunos-table tbody tr:hover {
-  background-color: #f1f4f6;
-  /* Efeito de hover (fundo cinza) ao passar o mouse na linha */
+.alunos-table tr:hover {
+  background-color: #f8fafc;
 }
 
-/* Remove a linha de baixo da última célula para não ficar dupla com o container */
-.alunos-table tbody tr:last-child td {
-  border-bottom: none;
+/* Botões Modernos */
+button {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s active;
+}
+
+button[type="submit"] {
+  background-color: var(--primary);
+  color: white;
+  border: none;
+}
+
+.btn-excluir {
+  background-color: #fff;
+  color: #ef4444;
+  border: 1px solid #fee2e2;
+}
+
+.btn-excluir:hover {
+  background-color: #fef2f2;
 }
