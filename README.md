@@ -73,12 +73,6 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 - Remoção automática do aluno da escala durante o período de dispensa.
 ---
 
-# Grupo 4 - Sistema de Escala de Serviço
-
-Sistema para gerenciamento de alunos e geração automática de escalas de serviço.
-
----
-
 ## Tecnologias Utilizadas
 
 ### Backend
@@ -161,7 +155,7 @@ Após subir o ambiente:
 
 - **Backend:** http://localhost:3000  
 - **Frontend:** http://localhost:8080  
-- **MySQL:** disponível na porta 3306  
+- **MySQL:** disponível na porta 8081  
 
 ---
 
@@ -176,10 +170,44 @@ docker compose down
 
 ---
 
-## Serviços e Portas Expostas
+## Funcionalidade F1: Cadastro de Alunos
 
-| Serviço   | Porta Local | Porta no Container |
-|------------|------------|-------------------|
-| Backend    | 3000       | 3000 |
-| Frontend   | 8080       | 80 |
-| MySQL      | 3306       | 3306 |
+A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que participam da escala. Cada registro de aluno contém as seguintes informações:
+
+* Matricula (Chave Primária)
+* Nome de Guerra
+* Nome Completo
+* Turma
+* Segmento (Masculino ou Feminino)
+* Função
+* Estado de Saúde
+* E-mail Institucional
+
+## Tecnologias Utilizadas
+
+* Frontend: React.js com Vite
+* Backend: Node.js com Express
+* Banco de Dados: MySQL 8.4
+* Orquestração: Docker e Docker Compose
+
+## Estrutura do Projeto
+
+* /backend: API REST desenvolvida em Node.js.
+* /frontend: Interface do usuário desenvolvida em React.
+* /database: Scripts SQL para inicialização e estruturação do banco de dados.
+* docker-compose.yml: Arquivo de configuração para subir todos os serviços simultaneamente.
+
+## Como Executar o Projeto
+
+### Pré-requisitos
+* Docker instalado
+* Docker Compose instalado
+
+## Endpoints da API (Funcionalidade F1)
+* GET /alunos: Lista todos os alunos cadastrados.
+
+* POST /alunos: Cadastra um novo aluno.
+
+* PUT /alunos/:matricula: Atualiza os dados de um aluno existente.
+
+* DELETE /alunos/:matricula: Remove um aluno do sistema.
