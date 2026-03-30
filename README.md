@@ -182,6 +182,7 @@ A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que parti
 * Função
 * Estado de Saúde
 * E-mail Institucional
+<img width="1874" height="899" alt="image" src="https://github.com/user-attachments/assets/51bf3dd2-cdd3-4951-b932-0e93da45b6d9" />
 
 ## Tecnologias Utilizadas
 
