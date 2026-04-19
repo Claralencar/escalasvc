@@ -73,12 +73,6 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 - Remoção automática do aluno da escala durante o período de dispensa.
 ---
 
-# Grupo 4 - Sistema de Escala de Serviço
-
-Sistema para gerenciamento de alunos e geração automática de escalas de serviço.
-
----
-
 ## Tecnologias Utilizadas
 
 ### Backend
@@ -92,8 +86,8 @@ Sistema para gerenciamento de alunos e geração automática de escalas de servi
 - Executado via Docker
 
 ### Frontend
-- **HTML5 & CSS3** (Layout responsivo e modais personalizados)
 - **JavaScript (ES6+)**
+- **React.js com Vite**
 - **Chart.js** (Gráficos)
 - **FontAwesome** (Ícones)
 
@@ -161,7 +155,7 @@ Após subir o ambiente:
 
 - **Backend:** http://localhost:3000  
 - **Frontend:** http://localhost:8080  
-- **MySQL:** disponível na porta 3306  
+- **MySQL:** disponível na porta 8081  
 
 ---
 
@@ -176,10 +170,70 @@ docker compose down
 
 ---
 
-## Serviços e Portas Expostas
+## Funcionalidade F1: Cadastro de Alunos
 
-| Serviço   | Porta Local | Porta no Container |
-|------------|------------|-------------------|
-| Backend    | 3000       | 3000 |
-| Frontend   | 8080       | 80 |
-| MySQL      | 3306       | 3306 |
+A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que participam da escala. Cada registro de aluno contém as seguintes informações:
+
+* Matricula (Chave Primária)
+* Nome de Guerra
+* Nome Completo
+* Turma
+* Segmento (Masculino ou Feminino)
+* Função
+* Estado de Saúde
+* E-mail Institucional
+<img width="1874" height="899" alt="image" src="https://github.com/user-attachments/assets/51bf3dd2-cdd3-4951-b932-0e93da45b6d9" />
+
+## Tecnologias Utilizadas
+
+* Frontend: React.js com Vite
+* Backend: Node.js com Express
+* Banco de Dados: MySQL 8.4
+* Orquestração: Docker e Docker Compose
+
+## Estrutura do Projeto
+
+* /backend: API REST desenvolvida em Node.js.
+* /frontend: Interface do usuário desenvolvida em React.
+* /database: Scripts SQL para inicialização e estruturação do banco de dados.
+* docker-compose.yml: Arquivo de configuração para subir todos os serviços simultaneamente.
+
+## Como Executar o Projeto
+
+### Pré-requisitos
+* Docker instalado
+* Docker Compose instalado
+
+## Endpoints da API (Funcionalidade F1)
+* GET /alunos: Lista todos os alunos cadastrados.
+
+* POST /alunos: Cadastra um novo aluno.
+
+* PUT /alunos/:matricula: Atualiza os dados de um aluno existente.
+
+* DELETE /alunos/:matricula: Remove um aluno do sistema.
+
+
+## Funcionalidade F2: Cadastro da Escala
+
+A Funcionalidade F2 permite a parametrização das regras que regem a distribuição dos serviços. Através desta interface, define-se quais grupos participam de cada tipo de escala e qual critério de antiguidade/ordenação será aplicado automaticamente pelo sistema.
+<img width="1577" height="886" alt="image" src="https://github.com/user-attachments/assets/a07cef7f-1a57-4910-a5ac-4e5c0d62e2de" />
+
+### Parâmetros de Configuração
+Cada escala cadastrada no sistema possui os seguintes atributos:
+
+* **Nome da Escala:** Identificação da escala (ex: "Preta Seg Fem Perm").
+* **Cor Associada:**
+  * **Preta:** Vinculada automaticamente aos dias úteis (Segunda a Sexta).
+  * **Vermelha:** Vinculada a finais de semana e feriados.
+* **Segmento Participante:** Define se a escala é restrita ao segmento **Masculino**, **Feminino** ou se inclui **Todos** os alunos.
+* **Regra de Ordenação:** Critério para geração da lista de chamada:
+  * Alfabética ou Anti-alfabética por Nome de Guerra.
+  * Alfabética ou Anti-alfabética por Nome Completo.
+  * Alfabética ou Anti-alfabética por Número de Matrícula.
+
+### Endpoints da API (Funcionalidade F2)
+
+* **GET /escalas:** Retorna a lista de todas as configurações de escala cadastradas.
+* **POST /escalas:** Registra uma nova configuração de escala e suas regras de ordenação.
+* **DELETE /escalas/:id:** Remove uma configuração de escala do sistema através do seu ID único.
