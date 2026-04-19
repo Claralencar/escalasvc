@@ -86,8 +86,8 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 - Executado via Docker
 
 ### Frontend
-- **HTML5 & CSS3** (Layout responsivo e modais personalizados)
 - **JavaScript (ES6+)**
+- **React.js com Vite**
 - **Chart.js** (Gráficos)
 - **FontAwesome** (Ícones)
 
@@ -212,3 +212,28 @@ A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que parti
 * PUT /alunos/:matricula: Atualiza os dados de um aluno existente.
 
 * DELETE /alunos/:matricula: Remove um aluno do sistema.
+
+
+## Funcionalidade F2: Cadastro da Escala
+
+A Funcionalidade F2 permite a parametrização das regras que regem a distribuição dos serviços. Através desta interface, define-se quais grupos participam de cada tipo de escala e qual critério de antiguidade/ordenação será aplicado automaticamente pelo sistema.
+<img width="1577" height="886" alt="image" src="https://github.com/user-attachments/assets/a07cef7f-1a57-4910-a5ac-4e5c0d62e2de" />
+
+### Parâmetros de Configuração
+Cada escala cadastrada no sistema possui os seguintes atributos:
+
+* **Nome da Escala:** Identificação da escala (ex: "Preta Seg Fem Perm").
+* **Cor Associada:**
+  * **Preta:** Vinculada automaticamente aos dias úteis (Segunda a Sexta).
+  * **Vermelha:** Vinculada a finais de semana e feriados.
+* **Segmento Participante:** Define se a escala é restrita ao segmento **Masculino**, **Feminino** ou se inclui **Todos** os alunos.
+* **Regra de Ordenação:** Critério para geração da lista de chamada:
+  * Alfabética ou Anti-alfabética por Nome de Guerra.
+  * Alfabética ou Anti-alfabética por Nome Completo.
+  * Alfabética ou Anti-alfabética por Número de Matrícula.
+
+### Endpoints da API (Funcionalidade F2)
+
+* **GET /escalas:** Retorna a lista de todas as configurações de escala cadastradas.
+* **POST /escalas:** Registra uma nova configuração de escala e suas regras de ordenação.
+* **DELETE /escalas/:id:** Remove uma configuração de escala do sistema através do seu ID único.
