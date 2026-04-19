@@ -3,66 +3,19 @@ import api from '../services/api';
 import { Trash2, Plus, Settings } from 'lucide-react';
 import './CadastroEscala.css';
 
-// Array auxiliar para os checkboxes
-const OPCOES_DIAS = [
-  { value: 'segunda', label: 'Seg' },
-  { value: 'terca', label: 'Ter' },
-  { value: 'quarta', label: 'Qua' },
-  { value: 'quinta', label: 'Qui' },
-  { value: 'sexta', label: 'Sex' },
-  { value: 'sabado', label: 'Sáb' },
-  { value: 'domingo', label: 'Dom' }
-];
-
 const CadastroEscala = () => {
   const [escalas, setEscalas] = useState([]);
 
-  // 1. Adicionamos 'dias_semana' ao estado inicial
+  // Estado alinhado com o banco de dados e com os values dos <options>
   const [formData, setFormData] = useState({
     nome_escala: '',
     cor: 'preta',
     segmento_participante: 'todos',
-    regra_ordenacao: 'nome_guerra_asc',
-    dias_semana: ['segunda', 'terca', 'quarta', 'quinta', 'sexta'] // Padrão para escala preta
+    regra_ordenacao: 'alfabetica_guerra'
   });
-
-
-  // 2. Lógica para mudar os dias automaticamente quando a cor muda
-  const handleCorChange = (e) => {
-    const novaCor = e.target.value;
-    let novosDias = [];
-
-    if (novaCor === 'preta') {
-      novosDias = ['segunda', 'terca', 'quarta', 'quinta', 'sexta'];
-    } else if (novaCor === 'vermelha') {
-      novosDias = ['sabado', 'domingo'];
-    }
-
-    setFormData({
-      ...formData,
-      cor: novaCor,
-      dias_semana: novosDias
-    });
-  };
-
-  // 3. Função para marcar/desmarcar dias individuais manualmente
-  const handleDiaToggle = (diaValue) => {
-    setFormData((prev) => {
-      const jaSelecionado = prev.dias_semana.includes(diaValue);
-      if (jaSelecionado) {
-        return { ...prev, dias_semana: prev.dias_semana.filter(d => d !== diaValue) };
-      } else {
-        return { ...prev, dias_semana: [...prev.dias_semana, diaValue] };
-      }
-    });
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (formData.dias_semana.length === 0) {
-      alert("Por favor, selecione pelo menos um dia da semana.");
-      return;
-    }
 
     try {
       const dadosParaEnviar = {
@@ -74,11 +27,12 @@ const CadastroEscala = () => {
       await api.post('/escalas', dadosParaEnviar);
       alert("Escala configurada com sucesso!");
 
+      // Limpa apenas o nome após salvar, mantendo as outras seleções para facilitar o próximo cadastro
       setFormData({ ...formData, nome_escala: '' });
       carregarEscalas();
     } catch (error) {
       console.error("Erro na requisição:", error);
-      alert("Erro ao guardar na base de dados.");
+      alert("Erro ao criar escala no banco de dados.");
     }
   };
 
@@ -94,7 +48,6 @@ const CadastroEscala = () => {
       console.error("Erro ao buscar escalas:", error);
     }
   };
-
 
   const handleDelete = async (id) => {
     if (window.confirm("Deseja realmente excluir esta configuração?")) {

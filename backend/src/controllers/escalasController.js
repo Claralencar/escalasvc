@@ -2,9 +2,8 @@ const db = require("../database/db");
 
 exports.listarEscalas = async (req, res) => {
     try {
-        // Usamos a desestruturação [results] porque o mysql2 retorna um array 
-        // onde a primeira posição são os dados e a segunda os metadados da tabela.
-        const [results] = await db.promise().query("SELECT * FROM escalas");
+        // REMOVIDO O .promise()
+        const [results] = await db.query("SELECT * FROM escalas");
         res.json(results);
     } catch (err) {
         console.error("Erro ao listar escalas:", err);
@@ -13,7 +12,6 @@ exports.listarEscalas = async (req, res) => {
 };
 
 exports.criarEscalas = async (req, res) => {
-    // Desestruturamos usando os nomes que virão do frontend
     const { nome_escala, cor, segmento_participante, regra_ordenacao } = req.body;
 
     try {
@@ -21,11 +19,11 @@ exports.criarEscalas = async (req, res) => {
       INSERT INTO escalas (nome_escala, cor, segmento_participante, regra_ordenacao) 
       VALUES (?, ?, ?, ?)
     `;
-
-        await db.promise().query(query, [
+        // REMOVIDO O .promise()
+        await db.query(query, [
             nome_escala,
-            cor.toLowerCase(), // Garantimos que vá minúsculo para o ENUM
-            segmento_participante.toLowerCase(), // Garantimos minúsculo
+            cor.toLowerCase(),
+            segmento_participante.toLowerCase(),
             regra_ordenacao
         ]);
 
@@ -41,9 +39,9 @@ exports.deletarEscalas = async (req, res) => {
     const sql = `DELETE FROM escalas WHERE id = ?`;
 
     try {
-        const [result] = await db.promise().query(sql, [id]);
+        // REMOVIDO O .promise()
+        const [result] = await db.query(sql, [id]);
 
-        // Verificamos se alguma linha foi realmente afetada pelo DELETE
         if (result.affectedRows === 0) {
             res.status(404).json({ message: "Escala não encontrada" });
         } else {
