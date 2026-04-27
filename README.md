@@ -56,21 +56,6 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
   - Sargenteante
   - Outros responsáveis definidos no sistema
 
-### Sistema de Dispensa (Baixados)
-- Registro de alunos que estão dispensados de atividades.
-- Login do aluno utilizando número de matrícula e senha.
-- Preenchimento de formulário de dispensa contendo:
-  - Motivo da dispensa
-  - Tipo de atividade dispensada (formatura, serviço, TFM, etc.)
-  - Data de validade da dispensa
-  - Upload do documento oficial da dispensa (PDF)
-
-### Área do Sargenteante
-- Recebimento automático dos pedidos de dispensa enviados pelos alunos.
-- Análise das informações e documentos enviados.
-- Aprovação ou rejeição das dispensas.
-- Atualização automática do status do aluno na escala.
-- Remoção automática do aluno da escala durante o período de dispensa.
 ---
 
 ## Tecnologias Utilizadas
@@ -88,8 +73,6 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 ### Frontend
 - **JavaScript (ES6+)**
 - **React.js com Vite**
-- **Chart.js** (Gráficos)
-- **FontAwesome** (Ícones)
 
 ### Infraestrutura
 - **Docker**
