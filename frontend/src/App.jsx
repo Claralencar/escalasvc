@@ -14,6 +14,7 @@ function App() {
       <Link to="/">Home</Link>
       <Link to="/cadastro-escala">Configurar Escalas</Link>
       <Link to="/alunos">Cadastro de Alunos</Link>
+      <Link to="/escala">Visualizar / Gerar Escalas</Link>
     </nav>
 
       <div className="page-container">

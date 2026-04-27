@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS alunos (
 CREATE TABLE IF NOT EXISTS escalas (
     id INT AUTO_INCREMENT PRIMARY KEY,
     nome_escala VARCHAR(100) NOT NULL,
-    cor ENUM('preta', 'vermelha',   'cinza', 'azul', 'verde', 'amarela', 'rosa', 'roxa', 'laranja') NOT NULL,
+    cor ENUM('preta', 'vermelha', 'cinza', 'azul', 'verde', 'amarela', 'rosa', 'roxa', 'laranja') NOT NULL,
     segmento_participante ENUM('feminino','masculino','todos') NOT NULL,
     regra_ordenacao ENUM(
         'nome_guerra_asc',
@@ -29,4 +29,15 @@ CREATE TABLE IF NOT EXISTS escala_dias_semana (
     escala_id INT NOT NULL,
     dia_semana ENUM('segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado', 'domingo') NOT NULL,
     FOREIGN KEY (escala_id) REFERENCES escalas(id) ON DELETE CASCADE
+);
+
+-- Nova tabela da F3 para persistir a escala gerada automaticamente
+CREATE TABLE IF NOT EXISTS escala_gerada (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    escala_id INT NOT NULL,
+    matricula_aluno VARCHAR(50) NOT NULL,
+    data_servico DATE NOT NULL,
+    nome_aluno_formatado VARCHAR(255),
+    FOREIGN KEY (escala_id) REFERENCES escalas(id) ON DELETE CASCADE,
+    FOREIGN KEY (matricula_aluno) REFERENCES alunos(matricula) ON DELETE CASCADE
 );

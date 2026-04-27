@@ -11,7 +11,7 @@ const CadastroEscala = () => {
     nome_escala: '',
     cor: 'preta',
     segmento_participante: 'todos',
-    regra_ordenacao: 'alfabetica_guerra'
+    regra_ordenacao: 'nome_guerra_asc'
   });
 
   const handleSubmit = async (e) => {
@@ -123,13 +123,14 @@ const CadastroEscala = () => {
                   value={formData.regra_ordenacao}
                   onChange={(e) => setFormData({ ...formData, regra_ordenacao: e.target.value })}
                 >
-                  <option value="alfabetica_guerra">Alfabética por nome de guerra</option>
-                  <option value="anti_alfabetica_guerra">Anti-alfabética por nome de guerra</option>
-                  <option value="alfabetica_completo">Alfabética por nome completo</option>
-                  <option value="anti_alfabetica_completo">Anti-alfabética por nome completo</option>
-                  <option value="alfabetica_matricula">Alfabética por matrícula</option>
-                  <option value="anti_alfabetica_matricula">Anti-alfabética por matrícula</option>
+                  <option value="nome_guerra_asc">Alfabética por nome de guerra</option>
+                  <option value="nome_guerra_desc">Anti-alfabética por nome de guerra</option>
+                  <option value="nome_completo_asc">Alfabética por nome completo</option>
+                  <option value="nome_completo_desc">Anti-alfabética por nome completo</option>
+                  <option value="matricula_asc">Alfabética por matrícula</option>
+                  <option value="matricula_desc">Anti-alfabética por matrícula</option>
                 </select>
+                
               </div>
 
               <button type="submit" className="btn-save">

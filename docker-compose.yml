@@ -13,6 +13,8 @@ services:
       DB_PASSWORD: servicou
       DB_NAME: escala_db
     restart: always
+    env_file:
+      - ./backend/.env
 
   frontend:
     build: ./frontend
