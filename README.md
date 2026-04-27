@@ -28,7 +28,7 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 ### Configuração das Escalas
 - Definição das regras que controlam o funcionamento das escalas.
 - Associação de cores aos tipos de escala:
-  - Cinza: dias úteis (segunda a sexta)
+  - Preta: dias úteis (segunda a sexta)
   - Vermelha: finais de semana e feriados
 - Criação de diferentes tipos de escala com:
   - Nome da escala
