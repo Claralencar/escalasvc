@@ -28,7 +28,7 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 ### Configuração das Escalas
 - Definição das regras que controlam o funcionamento das escalas.
 - Associação de cores aos tipos de escala:
-  - Cinza: dias úteis (segunda a sexta)
+  - Preta: dias úteis (segunda a sexta)
   - Vermelha: finais de semana e feriados
 - Criação de diferentes tipos de escala com:
   - Nome da escala
@@ -56,21 +56,6 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
   - Sargenteante
   - Outros responsáveis definidos no sistema
 
-### Sistema de Dispensa (Baixados)
-- Registro de alunos que estão dispensados de atividades.
-- Login do aluno utilizando número de matrícula e senha.
-- Preenchimento de formulário de dispensa contendo:
-  - Motivo da dispensa
-  - Tipo de atividade dispensada (formatura, serviço, TFM, etc.)
-  - Data de validade da dispensa
-  - Upload do documento oficial da dispensa (PDF)
-
-### Área do Sargenteante
-- Recebimento automático dos pedidos de dispensa enviados pelos alunos.
-- Análise das informações e documentos enviados.
-- Aprovação ou rejeição das dispensas.
-- Atualização automática do status do aluno na escala.
-- Remoção automática do aluno da escala durante o período de dispensa.
 ---
 
 ## Tecnologias Utilizadas
@@ -88,8 +73,6 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 ### Frontend
 - **JavaScript (ES6+)**
 - **React.js com Vite**
-- **Chart.js** (Gráficos)
-- **FontAwesome** (Ícones)
 
 ### Infraestrutura
 - **Docker**
@@ -237,3 +220,23 @@ Cada escala cadastrada no sistema possui os seguintes atributos:
 * **GET /escalas:** Retorna a lista de todas as configurações de escala cadastradas.
 * **POST /escalas:** Registra uma nova configuração de escala e suas regras de ordenação.
 * **DELETE /escalas/:id:** Remove uma configuração de escala do sistema através do seu ID único.
+
+## Funcionalidade F3: Geração Automática da Escala e Aditamento
+
+A Funcionalidade F3 é o núcleo automatizado do sistema. Ela cruza as parametrizações definidas na configuração de escalas (F2) com a lista de alunos ativos (F1) para distribuir, de forma inteligente e justa, os serviços da semana seguinte, além de automatizar a parte burocrática de comunicação.
+
+<img width="1606" height="867" alt="image" src="https://github.com/user-attachments/assets/8650ec7b-dc63-4eeb-a5ef-8d3b100c733c" />
+
+### Características e Regras de Negócio
+
+* **Visualização e Geração Flexível:** A interface permite que o utilizador selecione quais escalas deseja executar simultaneamente (ex: uma Escala Preta para dias úteis e uma Escala Vermelha para o fim de semana) e exibe o resultado visualmente num calendário iterativo de 7 dias.
+* **Regra de Descanso Regulamentar (48h):** O algoritmo de distribuição possui um controlo rigoroso de folgas. Antes de escalar um aluno, o sistema rastreia o último serviço prestado através do número de matrícula e garante que o militar tenha um intervalo de descanso mínimo de 48 horas (não podendo ser escalado caso tenha tirado serviço no dia anterior ou no dia anterior a este).
+* **Normalização de Documentos:** Para evitar inconsistências no aditamento, o sistema aplica um filtro rigoroso que remove os acentos de forma automatizada única e exclusivamente do Nome Completo do militar, preservando a integridade das outras informações.
+* **Geração de Documento Oficial:** O sistema compila o cronograma gerado e constrói de forma nativa um documento em PDF formatado como "Aditamento ao Boletim Interno".
+* **Notificação Automatizada:** Com um único clique, o sistema anexa o PDF gerado e dispara e-mails automáticos para o Comandante de Companhia, o Sargenteante e demais instâncias de gestão definidas.
+
+### Endpoints da API (Funcionalidade F3)
+
+* **POST `/escalas/gerar`:** Recebe os identificadores das escalas selecionadas no frontend, executa o algoritmo de distribuição (aplicando ordenação, filtro de segmento e regra de 48h de descanso) e persiste a escala gerada na base de dados.
+* **GET `/escalas/pdf`:** Consulta a escala ativa gerada na base de dados e realiza o streaming de um ficheiro `.pdf` gerado em tempo real com o aditamento.
+* **POST `/escalas/enviar`:** Renderiza o cronograma em PDF na memória do servidor e utiliza o serviço SMTP para encaminhar o ficheiro anexado via e-mail aos militares responsáveis.
