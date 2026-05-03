@@ -55,6 +55,8 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
   - Comandante de Companhia
   - Sargenteante
   - Outros responsáveis definidos no sistema
+ 
+
 A escala é gerada automaticamente de acordo com as regras básicas que uma escala de serviço segue:
 - Militar escalado tem direito a 48h de descanso
 - Militares não aptos por questão de saúde não são escalados
