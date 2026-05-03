@@ -240,3 +240,80 @@ A Funcionalidade F3 é o núcleo automatizado do sistema. Ela cruza as parametri
 * **POST `/escalas/gerar`:** Recebe os identificadores das escalas selecionadas no frontend, executa o algoritmo de distribuição (aplicando ordenação, filtro de segmento e regra de 48h de descanso) e persiste a escala gerada na base de dados.
 * **GET `/escalas/pdf`:** Consulta a escala ativa gerada na base de dados e realiza o streaming de um ficheiro `.pdf` gerado em tempo real com o aditamento.
 * **POST `/escalas/enviar`:** Renderiza o cronograma em PDF na memória do servidor e utiliza o serviço SMTP para encaminhar o ficheiro anexado via e-mail aos militares responsáveis.
+
+## 📱 MVP Mobile (React Native)
+
+O sistema **Auto Escala** conta com um aplicativo móvel desenvolvido em **React Native**. O objetivo deste módulo é oferecer agilidade no gerenciamento de efetivo, permitindo que cadastros e consultas sejam feitos de qualquer lugar via rede local.
+
+### 🛠️ Tecnologias Mobile
+* **Framework:** React Native (via Expo)
+* **Ícones:** Material Community Icons (@expo/vector-icons)
+* **Cliente HTTP:** Axios (integração com a API Node.js na porta 3000)
+* **Estilização:** StyleSheet (UI inspirada no layout administrativo do projeto)
+
+### 📂 Estrutura do Projeto (Atualizada)
+A estrutura foi adaptada para um modelo **Mono-repo**, facilitando a gestão do ecossistema completo:
+```bash
+grupo4-escalasvc/
+│
+├── backend/          # API REST Node.js e rotas Express
+├── frontend/         # Interface Web em React
+├── database/         # Scripts de estruturação MySQL
+└── mobile/           # Aplicativo React Native (MVP)
+    ├── src/
+    │   └── services/
+    │       └── api.js # Configuração do Axios com IP local
+    ├── App.js         # Lógica do CRUD e Interface detalhada
+    └── package.json   # Dependências do projeto mobile
+```
+
+## Como Executar o Mobile
+
+### Pre-requisitos
+* Possuir o Node.js instalado.
+* Instalar o aplicativo Expo Go no celular (Android ou iOS).
+* Certificar-se de que o computador e o celular estao conectados na mesma rede Wi-Fi.
+
+### 1. Configurar o IP da API
+Para o celular encontrar o servidor, voce deve editar o arquivo `mobile/src/services/api.js` com o IP da sua maquina:
+```javascript
+// mobile/src/services/api.js
+import axios from 'axios';
+
+const api = axios.create({
+  // Substitua pelo IP que aparece no terminal do Expo (Metro) e a porta 3000 do servidor
+  baseURL: '[http://192.168.1.102:3000](http://192.168.1.102:3000)', 
+});
+
+export default api;
+```
+
+
+### 2. Iniciar o Aplicativo
+Navegue ate a pasta mobile, instale as dependencias e inicie o Metro Bundler:
+```bash
+cd mobile
+npm install
+npx expo start
+```
+Escaneie o QR Code gerado no terminal com a camera do seu celular ou atraves do app Expo Go.
+
+## Funcionalidade F1: Cadastro de Alunos (Mobile)
+A versao mobile implementa o ciclo completo de gerenciamento da funcionalidade F1 com foco em usabilidade (UX).
+
+### Recursos Implementados
+* **CRUD Completo**: Cadastro, listagem, edicao e exclusao de alunos integrados ao banco de dados MySQL.
+* **Interface Otimizada**: Visual em Cards com separacao clara de informacoes e cabecalho dinamico conforme as regras de negocio.
+* **Seletores Inteligentes**:
+    * **Segmento**: Escolha rapida entre Masculino e Feminino.
+    * **Saude**: Selecao binaria (Apto / Nao Apto) para evitar erros de digitacao e padronizar os dados.
+    * **Funcao**: Seletor de status para indicar se o aluno possui funcao atribuida (Sim / Nao).
+* **Integridade de Dados**: O campo Matricula e tratado como Chave Primaria, sendo editavel apenas no momento do cadastro para preservar a consistencia do banco de dados.
+
+### Endpoints Consumidos (Mobile)
+O aplicativo realiza requisicoes JSON para as seguintes rotas do backend configuradas no servidor:
+
+* **GET /alunos**: Lista todos os militares cadastrados no sistema.
+* **POST /alunos**: Registra um novo militar enviando os dados do formulario.
+* **PUT /alunos/:matricula**: Atualiza as informacoes de um militar especifico atraves da sua chave primaria.
+* **DELETE /alunos/:matricula**: Remove o registro do militar permanentemente do banco de dados.
