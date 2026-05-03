@@ -15,8 +15,8 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
   - Nome completo
   - Turma
   - Segmento (masculino ou feminino)
-  - Função (ex: sargenteante)
-  - Estado de saúde
+  - Função de Comando (está em função ou não?)
+  - Estado de saúde (Apto/Não apto ao serviço)
   - Número de matrícula (identificador único)
   - E-mail institucional
 - Operações completas de gerenciamento:
@@ -55,6 +55,10 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
   - Comandante de Companhia
   - Sargenteante
   - Outros responsáveis definidos no sistema
+A escala é gerada automaticamente de acordo com as regras básicas que uma escala de serviço segue:
+- Militar escalado tem direito a 48h de descanso
+- Militares não aptos por questão de saúde não são escalados
+- Militares em função de comando não são escalados
 
 ---
 
@@ -63,7 +67,7 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 ### Backend
 - **Node.js 20**
 - **Express**
-- **MySQL2** (MySQL Connector)
+- **MySQL2**
 - **Docker**
 
 ### Banco de Dados
@@ -81,26 +85,19 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 ---
 
 ## Estrutura do Projeto
-
 ```bash
 grupo4-escalasvc/
 │
-├── backend/
-│   ├── src/
-│   │   └── server.js
-│   ├── package.json
-│   └── Dockerfile
-│
-├── frontend/
-│   ├── index.html
-│   ├── css/
-│   ├── js/
-│   └── Dockerfile
-│
-├── database/
-│   └── (scripts SQL futuros)
-│
-└── docker-compose.yml
+├── backend/          # API REST Node.js e rotas Express
+├── frontend/         # Interface Web em React
+├── database/         # Scripts de estruturação MySQL
+└── mobile/           # Aplicativo React Native (MVP)
+    ├── src/
+    │   └── services/
+    │       └── api.js # Configuração do Axios com IP local
+    ├── App.js         # Lógica do CRUD e Interface detalhada
+    └── package.json   # Dependências do projeto mobile
+```
 
 ## Como Executar o Projeto
 
@@ -161,31 +158,11 @@ A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que parti
 * Nome de Guerra
 * Nome Completo
 * Turma
-* Segmento (Masculino ou Feminino)
-* Função
-* Estado de Saúde
+* Segmento (Masculino/Feminino)
+* Função (Sim/Não)
+* Estado de Saúde (Apto/Não Apto)
 * E-mail Institucional
 <img width="1874" height="899" alt="image" src="https://github.com/user-attachments/assets/51bf3dd2-cdd3-4951-b932-0e93da45b6d9" />
-
-## Tecnologias Utilizadas
-
-* Frontend: React.js com Vite
-* Backend: Node.js com Express
-* Banco de Dados: MySQL 8.4
-* Orquestração: Docker e Docker Compose
-
-## Estrutura do Projeto
-
-* /backend: API REST desenvolvida em Node.js.
-* /frontend: Interface do usuário desenvolvida em React.
-* /database: Scripts SQL para inicialização e estruturação do banco de dados.
-* docker-compose.yml: Arquivo de configuração para subir todos os serviços simultaneamente.
-
-## Como Executar o Projeto
-
-### Pré-requisitos
-* Docker instalado
-* Docker Compose instalado
 
 ## Endpoints da API (Funcionalidade F1)
 * GET /alunos: Lista todos os alunos cadastrados.
@@ -251,22 +228,6 @@ O sistema **Auto Escala** conta com um aplicativo móvel desenvolvido em **React
 * **Cliente HTTP:** Axios (integração com a API Node.js na porta 3000)
 * **Estilização:** StyleSheet (UI inspirada no layout administrativo do projeto)
 
-### 📂 Estrutura do Projeto (Atualizada)
-A estrutura foi adaptada para um modelo **Mono-repo**, facilitando a gestão do ecossistema completo:
-```bash
-grupo4-escalasvc/
-│
-├── backend/          # API REST Node.js e rotas Express
-├── frontend/         # Interface Web em React
-├── database/         # Scripts de estruturação MySQL
-└── mobile/           # Aplicativo React Native (MVP)
-    ├── src/
-    │   └── services/
-    │       └── api.js # Configuração do Axios com IP local
-    ├── App.js         # Lógica do CRUD e Interface detalhada
-    └── package.json   # Dependências do projeto mobile
-```
-
 ## Como Executar o Mobile
 
 ### Pre-requisitos
@@ -288,7 +249,6 @@ const api = axios.create({
 export default api;
 ```
 
-
 ### 2. Iniciar o Aplicativo
 Navegue ate a pasta mobile, instale as dependencias e inicie o Metro Bundler:
 ```bash
@@ -308,7 +268,7 @@ A versao mobile implementa o ciclo completo de gerenciamento da funcionalidade F
     * **Segmento**: Escolha rapida entre Masculino e Feminino.
     * **Saude**: Selecao binaria (Apto / Nao Apto) para evitar erros de digitacao e padronizar os dados.
     * **Funcao**: Seletor de status para indicar se o aluno possui funcao atribuida (Sim / Nao).
-* **Integridade de Dados**: O campo Matricula e tratado como Chave Primaria, sendo editavel apenas no momento do cadastro para preservar a consistencia do banco de dados.
+* **Integridade de Dados**: O campo Matricula é tratado como Chave Primaria, sendo editavel apenas no momento do cadastro para preservar a consistencia do banco de dados.
 
 ### Endpoints Consumidos (Mobile)
 O aplicativo realiza requisicoes JSON para as seguintes rotas do backend configuradas no servidor:
