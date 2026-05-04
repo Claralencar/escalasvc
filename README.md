@@ -1,4 +1,4 @@
-# Auto Escala
+<img width="1650" height="890" alt="image" src="https://github.com/user-attachments/assets/bb14ad27-5555-4a94-806b-529f806dac98" /># Auto Escala
 
 Sistema para geração automática de escalas de serviço, desenvolvido para facilitar a organização e o gerenciamento de alunos que participam das escalas.
 
@@ -164,7 +164,8 @@ A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que parti
 * Função (Sim/Não)
 * Estado de Saúde (Apto/Não Apto)
 * E-mail Institucional
-<img width="1874" height="899" alt="image" src="https://github.com/user-attachments/assets/51bf3dd2-cdd3-4951-b932-0e93da45b6d9" />
+<img width="1650" height="890" alt="image" src="https://github.com/user-attachments/assets/c1daf4cd-171e-4909-ae2b-809af530b0c7" />
+
 
 ## Endpoints da API (Funcionalidade F1)
 * GET /alunos: Lista todos os alunos cadastrados.
@@ -179,7 +180,7 @@ A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que parti
 ## Funcionalidade F2: Cadastro da Escala
 
 A Funcionalidade F2 permite a parametrização das regras que regem a distribuição dos serviços. Através desta interface, define-se quais grupos participam de cada tipo de escala e qual critério de antiguidade/ordenação será aplicado automaticamente pelo sistema.
-<img width="1577" height="886" alt="image" src="https://github.com/user-attachments/assets/a07cef7f-1a57-4910-a5ac-4e5c0d62e2de" />
+<img width="1447" height="867" alt="image" src="https://github.com/user-attachments/assets/1cecb68b-a57a-4266-b9e3-75326865fa21" />
 
 ### Parâmetros de Configuração
 Cada escala cadastrada no sistema possui os seguintes atributos:
