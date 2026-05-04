@@ -25,7 +25,7 @@ exports.criarEscalas = async (req, res) => {
           INSERT INTO escalas (nome_escala, cor, segmento_participante, regra_ordenacao) 
           VALUES (?, ?, ?, ?)
         `;
-        
+
         const [result] = await db.query(query, [
             nome_escala,
             cor.toLowerCase(),
@@ -35,8 +35,8 @@ exports.criarEscalas = async (req, res) => {
 
         const escalaId = result.insertId;
 
-        let dias_semana = cor.toLowerCase() === 'preta' 
-            ? ['segunda', 'terca', 'quarta', 'quinta', 'sexta'] 
+        let dias_semana = cor.toLowerCase() === 'preta'
+            ? ['segunda', 'terca', 'quarta', 'quinta', 'sexta']
             : ['sabado', 'domingo'];
 
         for (const dia of dias_semana) {
@@ -67,7 +67,6 @@ exports.deletarEscalas = async (req, res) => {
         res.status(500).json({ error: "Erro ao deletar escala no banco de dados" });
     }
 };
-
 exports.gerarEscalaAutomatica = async (req, res) => {
     try {
         const { escalaPretaId, escalaVermelhaId } = req.body;
@@ -83,59 +82,72 @@ exports.gerarEscalaAutomatica = async (req, res) => {
         const escalasParaGerar = escalasConfig.filter(e => idsSelecionados.map(String).includes(e.id.toString()));
         const mapaDias = { 'domingo': 0, 'segunda': 1, 'terca': 2, 'quarta': 3, 'quinta': 4, 'sexta': 5, 'sabado': 6 };
         const resultados = [];
-        
-        // Controle de folga: guarda o objeto Date do último serviço de cada matrícula
-        const ultimoServicoPorAluno = {}; 
+
+        // Controle de folga: Forçamos a matrícula a ser sempre STRING para evitar erro de busca
+        const ultimoServicoPorAluno = {};
+
+        // Busca o histórico real do banco
+        const [historico] = await db.query(
+            "SELECT matricula_aluno, MAX(data_servico) as ultima_data FROM escala_gerada GROUP BY matricula_aluno"
+        );
+
+        historico.forEach(h => {
+            const d = new Date(h.ultima_data);
+            d.setHours(0, 0, 0, 0);
+            ultimoServicoPorAluno[String(h.matricula_aluno)] = d;
+        });
 
         for (let i = 1; i <= 7; i++) {
             let dataAtual = new Date();
-            dataDataRef = new Date();
-            dataAtual.setDate(dataDataRef.getDate() + i);
-            dataAtual.setHours(0, 0, 0, 0); // Zera as horas para comparar apenas dias
+            dataAtual.setDate(dataAtual.getDate() + i);
+            dataAtual.setHours(0, 0, 0, 0);
 
             let diaSemanaJS = dataAtual.getDay();
-            const escalasDoDia = diasConfig.filter(d => 
-                mapaDias[d.dia_semana] === diaSemanaJS && 
+            const escalasDoDia = diasConfig.filter(d =>
+                mapaDias[d.dia_semana] === diaSemanaJS &&
                 escalasParaGerar.some(eg => eg.id == d.escala_id)
             );
 
             for (const config of escalasDoDia) {
                 const escalaInfo = escalasParaGerar.find(e => e.id == config.escala_id);
-                
+
                 let alunosElegiveis = alunos.filter(a => {
-                    // Filtro de segmento
-                    const segmentoBate = !escalaInfo.segmento_participante || 
-                                       escalaInfo.segmento_participante === 'todos' || 
-                                       a.segmento.toLowerCase() === escalaInfo.segmento_participante.toLowerCase();
-                    
-                    // REGRA F3: 48h de descanso (Não pode ter trabalhado em D-1 ou D-2)
-                    const ultimaData = ultimoServicoPorAluno[a.matricula];
+                    const segmentoBate = !escalaInfo.segmento_participante ||
+                        escalaInfo.segmento_participante === 'todos' ||
+                        a.segmento.toLowerCase() === escalaInfo.segmento_participante.toLowerCase();
+
+                    // Buscamos a folga usando String() para garantir que a chave bata
+                    const ultimaData = ultimoServicoPorAluno[String(a.matricula)];
                     let descansado = true;
+
                     if (ultimaData) {
-                        const diffDias = Math.ceil(Math.abs(dataAtual - ultimaData) / (1000 * 60 * 60 * 24));
-                        descansado = diffDias >= 3; // 3 dias de diferença permite o serviço (Ex: Qui -> Sab = diff 2, bloqueia. Qua -> Sab = diff 3, permite)
+                        const diffTime = Math.abs(dataAtual.getTime() - ultimaData.getTime());
+                        const diffDias = Math.round(diffTime / (1000 * 60 * 60 * 24));
+
+                        // REGRA: diffDias >= 3 significa 48h de folga real entre turnos
+                        // Seg(1) -> Ter(2) folga -> Qua(3) folga -> Qui(4) pode trabalhar. (4-1 = 3)
+                        descansado = diffDias >= 3;
                     }
-                    
                     return segmentoBate && descansado;
                 });
 
                 if (alunosElegiveis.length === 0) continue;
 
-                if (escalaInfo.regra_ordenacao === 'nome_guerra_asc') {
-                    alunosElegiveis.sort((a, b) => (a.nome_guerra || '').localeCompare(b.nome_guerra || ''));
-                } else if (escalaInfo.regra_ordenacao === 'nome_guerra_desc') {
-                    alunosElegiveis.sort((a, b) => (b.nome_guerra || '').localeCompare(a.nome_guerra || ''));
-                } else if (escalaInfo.regra_ordenacao === 'nome_completo_asc') {
-                    alunosElegiveis.sort((a, b) => (a.nome_completo || '').localeCompare(b.nome_completo || ''));
-                } else if (escalaInfo.regra_ordenacao === 'nome_completo_desc') {
-                    alunosElegiveis.sort((a, b) => (b.nome_completo || '').localeCompare(a.nome_completo || ''));
-                } else if (escalaInfo.regra_ordenacao === 'matricula_asc') {
-                    alunosElegiveis.sort((a, b) => (a.matricula || '').localeCompare(b.matricula || ''));
-                } else if (escalaInfo.regra_ordenacao === 'matricula_desc') {
-                    alunosElegiveis.sort((a, b) => (b.matricula || '').localeCompare(a.matricula || ''));
-                }
+                // Ordenação (mantendo sua lógica original simplificada)
+                alunosElegiveis.sort((a, b) => {
+                    const regra = escalaInfo.regra_ordenacao;
+                    if (regra.includes('nome_guerra')) {
+                        return regra.includes('asc')
+                            ? (a.nome_guerra || '').localeCompare(b.nome_guerra || '')
+                            : (b.nome_guerra || '').localeCompare(a.nome_guerra || '');
+                    }
+                    if (regra.includes('matricula')) {
+                        return regra.includes('asc') ? a.matricula - b.matricula : b.matricula - a.matricula;
+                    }
+                    return 0;
+                });
 
-                const alunoEscalado = alunosElegiveis[0]; // Pega o primeiro da fila que não está de folga
+                const alunoEscalado = alunosElegiveis[0];
                 const nomeTratado = normalizarNome(alunoEscalado.nome_completo);
 
                 await db.query(
@@ -143,18 +155,18 @@ exports.gerarEscalaAutomatica = async (req, res) => {
                     [escalaInfo.id, alunoEscalado.matricula, dataAtual, nomeTratado]
                 );
 
-                resultados.push({ 
-                    data: dataAtual, 
-                    escala: escalaInfo.nome_escala, 
-                    aluno: alunoEscalado.nome_guerra,
-                    nome_completo: nomeTratado 
+                resultados.push({
+                    data: dataAtual,
+                    escala: escalaInfo.nome_escala,
+                    nome_guerra: alunoEscalado.nome_guerra,
+                    nome_completo: nomeTratado
                 });
 
-                // Atualiza o rastreio de folga deste aluno
-                ultimoServicoPorAluno[alunoEscalado.matricula] = new Date(dataAtual);
+                // ATUALIZAÇÃO CRUCIAL: Atualiza o mapa para o próximo dia do loop
+                ultimoServicoPorAluno[String(alunoEscalado.matricula)] = new Date(dataAtual);
             }
         }
-        res.json({ message: "Escala gerada com sucesso!", cronograma: resultados });
+        res.json({ message: "Escala gerada!", cronograma: resultados });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Erro ao processar geração automática" });
@@ -215,7 +227,7 @@ exports.enviarEmailAditamento = async (req, res) => {
         const doc = new PDFDocument();
         let chunks = [];
         doc.on('data', chunk => chunks.push(chunk));
-        
+
         // Conteúdo do PDF
         doc.fontSize(18).text("ADITAMENTO AO BOLETIM INTERNO", { align: "center" });
         doc.moveDown();

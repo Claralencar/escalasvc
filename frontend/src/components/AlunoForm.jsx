@@ -1,126 +1,85 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 function AlunoForm({ onSubmit, alunoEmEdicao, cancelarEdicao }) {
-  // Padronização: Todos os campos em snake_case para bater com o Banco de Dados
-  const estadoInicial = {
+  const [formData, setFormData] = useState({
     matricula: "",
     nome_guerra: "",
     nome_completo: "",
     turma: "",
-    segmento: "Masculino", // Padronizado com a primeira letra maiúscula para o ENUM
-    funcao: "",
-    estado_saude: "",
+    segmento: "Masculino",
+    funcao: "Não",
+    estado_saude: "Apto",
     email_institucional: "",
-  };
-
-  const [formData, setFormData] = useState(estadoInicial);
+  });
 
   useEffect(() => {
-    if (alunoEmEdicao) {
-      setFormData(alunoEmEdicao);
-    } else {
-      setFormData(estadoInicial);
-    }
+    if (alunoEmEdicao) setFormData(alunoEmEdicao);
   }, [alunoEmEdicao]);
 
-  function handleChange(e) {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  }
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    onSubmit(formData);
-  }
+    setFormData({ ...formData, [name]: value });
+  };
 
   return (
-    <form className="aluno-form" onSubmit={handleSubmit}>
-      <h2>{alunoEmEdicao ? "Editar Aluno" : "Cadastrar Aluno"}</h2>
+    <form className="aluno-form" onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }}>
+      <h2>Informações do Aluno</h2>
 
-      <input
-        type="text"
-        name="matricula"
-        placeholder="Matrícula"
-        value={formData.matricula || ""}
-        onChange={handleChange}
-        disabled={!!alunoEmEdicao}
-        required
-      />
+      <div className="form-group">
+        <label>Número de Matrícula *</label>
+        <input name="matricula" placeholder="Ex: 123456" value={formData.matricula} onChange={handleChange} disabled={!!alunoEmEdicao} required />
+      </div>
 
-      <input
-        type="text"
-        name="nome_guerra"
-        placeholder="Nome de guerra"
-        value={formData.nome_guerra || ""}
-        onChange={handleChange}
-        required
-      />
+      <div className="form-group">
+        <label>Nome de Guerra *</label>
+        <input name="nome_guerra" placeholder="Ex: Silva" value={formData.nome_guerra} onChange={handleChange} required />
+      </div>
 
-      <input
-        type="text"
-        name="nome_completo"
-        placeholder="Nome completo"
-        value={formData.nome_completo || ""}
-        onChange={handleChange}
-        required
-      />
+      <div className="form-group">
+        <label>Nome Completo *</label>
+        <input name="nome_completo" placeholder="Nome completo do aluno" value={formData.nome_completo} onChange={handleChange} required />
+      </div>
 
-      <input
-        type="text"
-        name="turma"
-        placeholder="Turma"
-        value={formData.turma || ""}
-        onChange={handleChange}
-        required
-      />
+      <div className="form-group">
+        <label>Turma *</label>
+        <input name="turma" placeholder="Ex: A" value={formData.turma} onChange={handleChange} required />
+      </div>
 
-      <select
-        name="segmento"
-        value={formData.segmento || "Masculino"}
-        onChange={handleChange}
-        required
-      >
-        <option value="Masculino">Masculino</option>
-        <option value="Feminino">Feminino</option>
-      </select>
+      <div className="form-group">
+        <label>Segmento *</label>
+        <select name="segmento" value={formData.segmento} onChange={handleChange}>
+          <option value="Masculino">Masculino</option>
+          <option value="Feminino">Feminino</option>
+        </select>
+      </div>
 
-      <input
-        type="text"
-        name="funcao"
-        placeholder="Função"
-        value={formData.funcao || ""}
-        onChange={handleChange}
-        required
-      />
+      <div className="form-group">
+        <label>Estado de Saúde *</label>
+        <select name="estado_saude" value={formData.estado_saude} onChange={handleChange}>
+          <option value="Apto">Apto</option>
+          <option value="Não Apto">Não Apto</option>
+        </select>
+      </div>
 
-      <input
-        type="text"
-        name="estado_saude" // Ajustado: de estadoSaude para estado_saude
-        placeholder="Estado de saúde"
-        value={formData.estado_saude || ""}
-        onChange={handleChange}
-        required
-      />
+      <div className="form-group">
+        <label>Está em função de comando? *</label>
+        <select name="funcao" value={formData.funcao} onChange={handleChange}>
+          <option value="Sim">Sim</option>
+          <option value="Não">Não</option>
+        </select>
+      </div>
 
-      <input
-        type="email"
-        name="email_institucional" // Ajustado: de emailInstitucional para email_institucional
-        placeholder="E-mail institucional"
-        value={formData.email_institucional || ""}
-        onChange={handleChange}
-        required
-      />
+      <div className="form-group">
+        <label>E-mail Institucional *</label>
+        <input name="email_institucional" type="email" placeholder="aluno@instituicao.mil.br" value={formData.email_institucional} onChange={handleChange} required />
+      </div>
 
-      <div className="form-buttons">
-        <button type="submit">
-          {alunoEmEdicao ? "Salvar Alterações" : "Cadastrar"}
+      <div className="form-actions">
+        <button type="submit" className="btn-salvar">
+          {alunoEmEdicao ? "Salvar Alterações" : "Cadastrar Aluno"}
         </button>
-
         {alunoEmEdicao && (
-          <button type="button" onClick={cancelarEdicao}>
+          <button type="button" className="btn-excluir" onClick={cancelarEdicao}>
             Cancelar
           </button>
         )}

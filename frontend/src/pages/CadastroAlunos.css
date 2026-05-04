@@ -96,3 +96,74 @@ button[type="submit"] {
 .btn-excluir:hover {
   background-color: #fef2f2;
 }
+
+/* ... manter o início do arquivo ... */
+
+/* Estilos para as Pílulas (Badges) na Tabela */
+.badge {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  display: inline-block;
+}
+
+.badge-masculino {
+  background-color: #e7f0ff;
+  color: #0d6efd;
+  border: 1px solid #cfe2ff;
+}
+
+.badge-feminino {
+  background-color: #ffeef0;
+  color: #d63384;
+  border: 1px solid #f9d1d8;
+}
+
+.badge-apto {
+  background-color: #e6fcf5;
+  color: #099268;
+  border: 1px solid #c3fae8;
+}
+
+.badge-nao-apto {
+  background-color: #fff5f5;
+  color: #fa5252;
+  border: 1px solid #ffe3e3;
+}
+
+/* Ajustes na Tabela conforme a imagem */
+.alunos-table th {
+  background-color: #f1f5f9;
+  /* Tom cinza azulado da imagem */
+  color: #64748b;
+  letter-spacing: 0.05em;
+}
+
+.alunos-table td {
+  vertical-align: middle;
+}
+
+.nome-guerra-cell {
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #1e293b;
+}
+
+/* Ajuste das Ações */
+.btn-icon {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #64748b;
+  transition: color 0.2s;
+}
+
+.btn-icon:hover {
+  color: #1e293b;
+}
+
+.btn-delete:hover {
+  color: #ef4444;
+}

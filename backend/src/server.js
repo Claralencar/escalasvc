@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const alunosRoutes = require("./routes/alunos");
-const escalasRoutes = require("./routes/escalas"); // 1. ADICIONE ESTA LINHA
+const escalasRoutes = require("./routes/escalas");
 
 const app = express();
 
@@ -18,10 +18,11 @@ app.get("/status", (req, res) => {
 
 // Rotas da aplicação
 app.use("/alunos", alunosRoutes);
-app.use("/escalas", escalasRoutes); // 2. ADICIONE ESTA LINHA
+app.use("/escalas", escalasRoutes);
 
 const PORT = 3000;
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+// O segundo parâmetro '0.0.0.0' é fundamental para aceitar conexões externas
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Servidor rodando em http://192.168.1.102:${PORT}`);
 });
