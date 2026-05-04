@@ -1,4 +1,4 @@
-<img width="1650" height="890" alt="image" src="https://github.com/user-attachments/assets/bb14ad27-5555-4a94-806b-529f806dac98" /># Auto Escala
+# Auto Escala
 
 Sistema para geração automática de escalas de serviço, desenvolvido para facilitar a organização e o gerenciamento de alunos que participam das escalas.
 
