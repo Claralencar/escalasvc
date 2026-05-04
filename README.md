@@ -15,8 +15,8 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
   - Nome completo
   - Turma
   - Segmento (masculino ou feminino)
-  - Função (ex: sargenteante)
-  - Estado de saúde
+  - Função de Comando (está em função ou não?)
+  - Estado de saúde (Apto/Não apto ao serviço)
   - Número de matrícula (identificador único)
   - E-mail institucional
 - Operações completas de gerenciamento:
@@ -55,6 +55,12 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
   - Comandante de Companhia
   - Sargenteante
   - Outros responsáveis definidos no sistema
+ 
+
+A escala é gerada automaticamente de acordo com as regras básicas que uma escala de serviço segue:
+- Militar escalado tem direito a 48h de descanso
+- Militares não aptos por questão de saúde não são escalados
+- Militares em função de comando não são escalados
 
 ---
 
@@ -63,7 +69,7 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 ### Backend
 - **Node.js 20**
 - **Express**
-- **MySQL2** (MySQL Connector)
+- **MySQL2**
 - **Docker**
 
 ### Banco de Dados
@@ -81,26 +87,19 @@ A plataforma elimina a necessidade de montar a escala manualmente, organizando a
 ---
 
 ## Estrutura do Projeto
-
 ```bash
 grupo4-escalasvc/
 │
-├── backend/
-│   ├── src/
-│   │   └── server.js
-│   ├── package.json
-│   └── Dockerfile
-│
-├── frontend/
-│   ├── index.html
-│   ├── css/
-│   ├── js/
-│   └── Dockerfile
-│
-├── database/
-│   └── (scripts SQL futuros)
-│
-└── docker-compose.yml
+├── backend/          # API REST Node.js e rotas Express
+├── frontend/         # Interface Web em React
+├── database/         # Scripts de estruturação MySQL
+└── mobile/           # Aplicativo React Native (MVP)
+    ├── src/
+    │   └── services/
+    │       └── api.js # Configuração do Axios com IP local
+    ├── App.js         # Lógica do CRUD e Interface detalhada
+    └── package.json   # Dependências do projeto mobile
+```
 
 ## Como Executar o Projeto
 
@@ -161,31 +160,12 @@ A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que parti
 * Nome de Guerra
 * Nome Completo
 * Turma
-* Segmento (Masculino ou Feminino)
-* Função
-* Estado de Saúde
+* Segmento (Masculino/Feminino)
+* Função (Sim/Não)
+* Estado de Saúde (Apto/Não Apto)
 * E-mail Institucional
-<img width="1874" height="899" alt="image" src="https://github.com/user-attachments/assets/51bf3dd2-cdd3-4951-b932-0e93da45b6d9" />
+<img width="1650" height="890" alt="image" src="https://github.com/user-attachments/assets/c1daf4cd-171e-4909-ae2b-809af530b0c7" />
 
-## Tecnologias Utilizadas
-
-* Frontend: React.js com Vite
-* Backend: Node.js com Express
-* Banco de Dados: MySQL 8.4
-* Orquestração: Docker e Docker Compose
-
-## Estrutura do Projeto
-
-* /backend: API REST desenvolvida em Node.js.
-* /frontend: Interface do usuário desenvolvida em React.
-* /database: Scripts SQL para inicialização e estruturação do banco de dados.
-* docker-compose.yml: Arquivo de configuração para subir todos os serviços simultaneamente.
-
-## Como Executar o Projeto
-
-### Pré-requisitos
-* Docker instalado
-* Docker Compose instalado
 
 ## Endpoints da API (Funcionalidade F1)
 * GET /alunos: Lista todos os alunos cadastrados.
@@ -200,7 +180,7 @@ A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que parti
 ## Funcionalidade F2: Cadastro da Escala
 
 A Funcionalidade F2 permite a parametrização das regras que regem a distribuição dos serviços. Através desta interface, define-se quais grupos participam de cada tipo de escala e qual critério de antiguidade/ordenação será aplicado automaticamente pelo sistema.
-<img width="1577" height="886" alt="image" src="https://github.com/user-attachments/assets/a07cef7f-1a57-4910-a5ac-4e5c0d62e2de" />
+<img width="1237" height="695" alt="image" src="https://github.com/user-attachments/assets/94fa26c7-4d65-472f-aabf-349fe8f55963" />
 
 ### Parâmetros de Configuração
 Cada escala cadastrada no sistema possui os seguintes atributos:
@@ -225,7 +205,7 @@ Cada escala cadastrada no sistema possui os seguintes atributos:
 
 A Funcionalidade F3 é o núcleo automatizado do sistema. Ela cruza as parametrizações definidas na configuração de escalas (F2) com a lista de alunos ativos (F1) para distribuir, de forma inteligente e justa, os serviços da semana seguinte, além de automatizar a parte burocrática de comunicação.
 
-<img width="1606" height="867" alt="image" src="https://github.com/user-attachments/assets/8650ec7b-dc63-4eeb-a5ef-8d3b100c733c" />
+<img width="1447" height="867" alt="image" src="https://github.com/user-attachments/assets/1cecb68b-a57a-4266-b9e3-75326865fa21" />
 
 ### Características e Regras de Negócio
 
@@ -240,3 +220,65 @@ A Funcionalidade F3 é o núcleo automatizado do sistema. Ela cruza as parametri
 * **POST `/escalas/gerar`:** Recebe os identificadores das escalas selecionadas no frontend, executa o algoritmo de distribuição (aplicando ordenação, filtro de segmento e regra de 48h de descanso) e persiste a escala gerada na base de dados.
 * **GET `/escalas/pdf`:** Consulta a escala ativa gerada na base de dados e realiza o streaming de um ficheiro `.pdf` gerado em tempo real com o aditamento.
 * **POST `/escalas/enviar`:** Renderiza o cronograma em PDF na memória do servidor e utiliza o serviço SMTP para encaminhar o ficheiro anexado via e-mail aos militares responsáveis.
+
+## 📱 MVP Mobile (React Native)
+
+O sistema **Auto Escala** conta com um aplicativo móvel desenvolvido em **React Native**. O objetivo deste módulo é oferecer agilidade no gerenciamento de efetivo, permitindo que cadastros e consultas sejam feitos de qualquer lugar via rede local.
+
+### 🛠️ Tecnologias Mobile
+* **Framework:** React Native (via Expo)
+* **Ícones:** Material Community Icons (@expo/vector-icons)
+* **Cliente HTTP:** Axios (integração com a API Node.js na porta 3000)
+* **Estilização:** StyleSheet (UI inspirada no layout administrativo do projeto)
+
+## Como Executar o Mobile
+
+### Pre-requisitos
+* Possuir o Node.js instalado.
+* Instalar o aplicativo Expo Go no celular (Android ou iOS).
+* Certificar-se de que o computador e o celular estao conectados na mesma rede Wi-Fi.
+
+### 1. Configurar o IP da API
+Para o celular encontrar o servidor, voce deve editar o arquivo `mobile/src/services/api.js` com o IP da sua maquina:
+```javascript
+// mobile/src/services/api.js
+import axios from 'axios';
+
+const api = axios.create({
+  // Substitua pelo IP que aparece no terminal do Expo (Metro) e a porta 3000 do servidor
+  baseURL: '[http://192.168.1.102:3000](http://192.168.1.102:3000)', 
+});
+
+export default api;
+```
+
+### 2. Iniciar o Aplicativo
+Navegue ate a pasta mobile, instale as dependencias e inicie o Metro Bundler:
+```bash
+cd mobile
+npm install
+npx expo start
+```
+Escaneie o QR Code gerado no terminal com a camera do seu celular ou atraves do app Expo Go.
+
+## Funcionalidade F1: Cadastro de Alunos (Mobile)
+A versao mobile implementa o ciclo completo de gerenciamento da funcionalidade F1 com foco em usabilidade (UX).
+<img width="720" height="1600" alt="WhatsApp Image 2026-05-03 at 21 46 12" src="https://github.com/user-attachments/assets/3098ae51-ee2e-4171-91dd-6afdd72165b8" />
+<img width="720" height="1600" alt="WhatsApp Image 2026-05-03 at 21 46 12 (1)" src="https://github.com/user-attachments/assets/36ce761c-95de-4183-ad33-485d7acc6620" />
+
+### Recursos Implementados
+* **CRUD Completo**: Cadastro, listagem, edicao e exclusao de alunos integrados ao banco de dados MySQL.
+* **Interface Otimizada**: Visual em Cards com separacao clara de informacoes e cabecalho dinamico conforme as regras de negocio.
+* **Seletores Inteligentes**:
+    * **Segmento**: Escolha rapida entre Masculino e Feminino.
+    * **Saude**: Selecao binaria (Apto / Nao Apto) para evitar erros de digitacao e padronizar os dados.
+    * **Funcao**: Seletor de status para indicar se o aluno possui funcao atribuida (Sim / Nao).
+* **Integridade de Dados**: O campo Matricula é tratado como Chave Primaria, sendo editavel apenas no momento do cadastro para preservar a consistencia do banco de dados.
+
+### Endpoints Consumidos (Mobile)
+O aplicativo realiza requisicoes JSON para as seguintes rotas do backend configuradas no servidor:
+
+* **GET /alunos**: Lista todos os militares cadastrados no sistema.
+* **POST /alunos**: Registra um novo militar enviando os dados do formulario.
+* **PUT /alunos/:matricula**: Atualiza as informacoes de um militar especifico atraves da sua chave primaria.
+* **DELETE /alunos/:matricula**: Remove o registro do militar permanentemente do banco de dados.
