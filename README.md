@@ -180,7 +180,7 @@ A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que parti
 ## Funcionalidade F2: Cadastro da Escala
 
 A Funcionalidade F2 permite a parametrização das regras que regem a distribuição dos serviços. Através desta interface, define-se quais grupos participam de cada tipo de escala e qual critério de antiguidade/ordenação será aplicado automaticamente pelo sistema.
-<img width="1447" height="867" alt="image" src="https://github.com/user-attachments/assets/1cecb68b-a57a-4266-b9e3-75326865fa21" />
+<img width="1237" height="695" alt="image" src="https://github.com/user-attachments/assets/94fa26c7-4d65-472f-aabf-349fe8f55963" />
 
 ### Parâmetros de Configuração
 Cada escala cadastrada no sistema possui os seguintes atributos:
@@ -205,7 +205,7 @@ Cada escala cadastrada no sistema possui os seguintes atributos:
 
 A Funcionalidade F3 é o núcleo automatizado do sistema. Ela cruza as parametrizações definidas na configuração de escalas (F2) com a lista de alunos ativos (F1) para distribuir, de forma inteligente e justa, os serviços da semana seguinte, além de automatizar a parte burocrática de comunicação.
 
-<img width="1606" height="867" alt="image" src="https://github.com/user-attachments/assets/8650ec7b-dc63-4eeb-a5ef-8d3b100c733c" />
+<img width="1447" height="867" alt="image" src="https://github.com/user-attachments/assets/1cecb68b-a57a-4266-b9e3-75326865fa21" />
 
 ### Características e Regras de Negócio
 
