@@ -15,7 +15,7 @@ export default function App() {
     matricula: '',
     nome_guerra: '',
     nome_completo: '',
-    turma: '',
+    turma: '1° ano',
     segmento: 'masculino',
     funcao: 'Não', // Atualizado para Sim/Não
     estado_saude: 'Apto', // Atualizado para Apto/Não Apto
@@ -118,8 +118,27 @@ export default function App() {
             onChangeText={(v) => setForm({ ...form, nome_completo: v })} />
 
           <Label title="Turma *" />
-          <TextInput style={styles.input} value={form.turma}
-            onChangeText={(v) => setForm({ ...form, turma: v })} />
+          <View>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.selectorRow}>
+              {['1° ano', '2° ano', '3° ano', '4° ano', '5° ano'].map((t) => (
+                <TouchableOpacity
+                  key={t}
+                  onPress={() => setForm({ ...form, turma: t })}
+                  style={[
+                    styles.optBtn,
+                    { minWidth: 80, marginRight: 8 },
+                    form.turma === t && { borderColor: '#1a233b', backgroundColor: '#1a233b10' }
+                  ]}
+                >
+                  <Text style={[
+                    styles.optText,
+                    { marginLeft: 0 },
+                    form.turma === t && { color: '#1a233b', fontWeight: 'bold' }
+                  ]}>{t}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
 
           {/* SELEÇÃO: SEGMENTO */}
           <Label title="Segmento *" />

@@ -41,3 +41,11 @@ CREATE TABLE IF NOT EXISTS escala_gerada (
     FOREIGN KEY (escala_id) REFERENCES escalas(id) ON DELETE CASCADE,
     FOREIGN KEY (matricula_aluno) REFERENCES alunos(matricula) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS escala_cotas_ano (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    escala_id INT NOT NULL,
+    turma VARCHAR(50) NOT NULL,
+    quantidade INT NOT NULL DEFAULT 0,
+    FOREIGN KEY (escala_id) REFERENCES escalas(id) ON DELETE CASCADE
+);

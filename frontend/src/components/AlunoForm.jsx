@@ -5,7 +5,7 @@ function AlunoForm({ onSubmit, alunoEmEdicao, cancelarEdicao }) {
     matricula: "",
     nome_guerra: "",
     nome_completo: "",
-    turma: "",
+    turma: "1° ano",
     segmento: "Masculino",
     funcao: "Não",
     estado_saude: "Apto",
@@ -42,7 +42,13 @@ function AlunoForm({ onSubmit, alunoEmEdicao, cancelarEdicao }) {
 
       <div className="form-group">
         <label>Turma *</label>
-        <input name="turma" placeholder="Ex: A" value={formData.turma} onChange={handleChange} required />
+        <select name="turma" value={formData.turma} onChange={handleChange} required>
+          <option value="1° ano">1° ano</option>
+          <option value="2° ano">2° ano</option>
+          <option value="3° ano">3° ano</option>
+          <option value="4° ano">4° ano</option>
+          <option value="5° ano">5° ano</option>
+        </select>
       </div>
 
       <div className="form-group">

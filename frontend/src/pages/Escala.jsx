@@ -26,12 +26,21 @@ function Escala() {
   const [erro, setErro] = useState("");
   const [carregando, setCarregando] = useState(false);
 
+  // Estados do Modal
+  const [mostrarModalPartida, setMostrarModalPartida] = useState(false);
+  const [alunosDisponiveis, setAlunosDisponiveis] = useState([]);
+  const [pontosPartida, setPontosPartida] = useState({
+    preta: { '1° ano': '', '2° ano': '', '3° ano': '', '4° ano': '', '5° ano': '' },
+    vermelha: { '1° ano': '', '2° ano': '', '3° ano': '', '4° ano': '', '5° ano': '' }
+  });
+
   useEffect(() => {
     async function carregar() {
       try {
         setCarregando(true);
         const resStatus = await fetch(`${API_URL}/status`);
         const resEscalas = await fetch(`${API_URL}/escalas`);
+        const resAlunos = await fetch(`${API_URL}/alunos`);
 
         if (!resStatus.ok) throw new Error("Erro ao consultar status");
 
@@ -41,6 +50,17 @@ function Escala() {
         if (resEscalas.ok) {
           const dadosEscalas = await resEscalas.json();
           escalasConfig.value = Array.isArray(dadosEscalas) ? dadosEscalas : [];
+        }
+
+        if (resAlunos.ok) {
+          const dadosAlunos = await resAlunos.json();
+          // Filtra apenas alunos aptos e que não são comando para a lista do modal
+          const aptos = dadosAlunos.filter(a => 
+            String(a.estado_saude).toLowerCase().trim() === 'apto' && 
+            String(a.funcao).toLowerCase().trim() !== 'sim' &&
+            String(a.funcao).toLowerCase().trim() !== 's'
+          );
+          setAlunosDisponiveis(aptos);
         }
       } catch (e) {
         console.error(e);
@@ -52,19 +72,24 @@ function Escala() {
     carregar();
   }, []);
 
-  const handleGerarEscala = async () => {
+  const handleAbrirModal = () => {
     if (!escalaPretaSelecionada && !escalaVermelhaSelecionada) {
       alert("Por favor, selecione pelo menos uma Escala Preta ou Vermelha antes de gerar.");
       return;
     }
+    setMostrarModalPartida(true);
+  };
 
+  const handleGerarEscala = async () => {
     try {
       setErro("");
       setCarregando(true);
+      setMostrarModalPartida(false);
 
       const payload = {
         escalaPretaId: escalaPretaSelecionada,
-        escalaVermelhaId: escalaVermelhaSelecionada
+        escalaVermelhaId: escalaVermelhaSelecionada,
+        pontosPartida: pontosPartida
       };
 
       const res = await fetch(`${API_URL}/escalas/gerar`, {
@@ -94,6 +119,16 @@ function Escala() {
     }
   };
 
+  const updatePontoPartida = (cor, turma, matricula) => {
+    setPontosPartida(prev => ({
+      ...prev,
+      [cor]: {
+        ...prev[cor],
+        [turma]: matricula
+      }
+    }));
+  };
+
   const handleBaixarPDF = () => {
     window.open(`${API_URL}/escalas/pdf`, '_blank');
   };
@@ -120,8 +155,78 @@ function Escala() {
   const escalasPretas = escalasConfig.value.filter(e => e.cor === 'preta');
   const escalasVermelhas = escalasConfig.value.filter(e => e.cor === 'vermelha');
 
+  const turmas = ['1° ano', '2° ano', '3° ano', '4° ano', '5° ano'];
+
   return (
     <div className="escala-layout">
+      {/* MODAL DE PONTO DE PARTIDA */}
+      {mostrarModalPartida && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>A partir de qual aluno a escala começa a rodar?</h3>
+            
+            <div className="modal-scroll-area">
+              {escalaPretaSelecionada && (
+                <div className="modal-section">
+                  <h4>Escala Preta (Segunda a Sexta)</h4>
+                  {turmas.map(turma => (
+                    <div key={`preta-${turma}`} className="form-group-modal">
+                      <label>{turma}:</label>
+                      <select 
+                        value={pontosPartida.preta[turma]} 
+                        onChange={(e) => updatePontoPartida('preta', turma, e.target.value)}
+                      >
+                        <option value="">-- Próximo da lista --</option>
+                        {alunosDisponiveis
+                          .filter(a => a.turma === turma)
+                          .sort((a, b) => (a.nome_completo || '').localeCompare(b.nome_completo || ''))
+                          .map(a => (
+                            <option key={a.matricula} value={a.matricula}>
+                              {a.nome_completo} [{String(a.nome_guerra).toUpperCase()}]
+                            </option>
+                          ))
+                        }
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {escalaVermelhaSelecionada && (
+                <div className="modal-section">
+                  <h4>Escala Vermelha (Sábado e Domingo)</h4>
+                  {turmas.map(turma => (
+                    <div key={`vermelha-${turma}`} className="form-group-modal">
+                      <label>{turma}:</label>
+                      <select 
+                        value={pontosPartida.vermelha[turma]} 
+                        onChange={(e) => updatePontoPartida('vermelha', turma, e.target.value)}
+                      >
+                        <option value="">-- Próximo da lista --</option>
+                        {alunosDisponiveis
+                          .filter(a => a.turma === turma)
+                          .sort((a, b) => (a.nome_completo || '').localeCompare(b.nome_completo || ''))
+                          .map(a => (
+                            <option key={a.matricula} value={a.matricula}>
+                              {a.nome_completo} [{String(a.nome_guerra).toUpperCase()}]
+                            </option>
+                          ))
+                        }
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="modal-actions">
+              <button className="btn-cancelar" onClick={() => setMostrarModalPartida(false)}>Cancelar</button>
+              <button className="btn-confirmar" onClick={handleGerarEscala}>Confirmar e Gerar</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <main className="escala-content">
         <div className="topo">
           <div>
@@ -130,7 +235,7 @@ function Escala() {
           </div>
 
           <div className="acoes-topo">
-            <button className="btn-secundario" onClick={handleGerarEscala} disabled={carregando}>
+            <button className="btn-secundario" onClick={handleAbrirModal} disabled={carregando}>
               {carregando ? "Gerando..." : "Gerar Automático"}
             </button>
             <button className="btn-secundario" onClick={handleBaixarPDF}>Baixar PDF</button>
@@ -183,7 +288,7 @@ function Escala() {
                     escalasNesteDia.map((escala, index) => (
                       <div key={index} className="card-nome" title={escala.nome_completo}>
                         <small>{escala.escala}</small><br />
-                        <strong>{escala.nome_guerra}</strong>
+                        <strong>{escala.nome_completo}</strong>
                       </div>
                     ))
                   )}

@@ -11,8 +11,25 @@ const CadastroEscala = () => {
     nome_escala: '',
     cor: 'preta',
     segmento_participante: 'todos',
-    regra_ordenacao: 'nome_guerra_asc'
+    regra_ordenacao: 'nome_guerra_asc',
+    cotas: {
+      '1° ano': 0,
+      '2° ano': 0,
+      '3° ano': 0,
+      '4° ano': 0,
+      '5° ano': 0
+    }
   });
+
+  const handleCotaChange = (ano, valor) => {
+    setFormData(prev => ({
+      ...prev,
+      cotas: {
+        ...prev.cotas,
+        [ano]: parseInt(valor) || 0
+      }
+    }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,8 +44,20 @@ const CadastroEscala = () => {
       await api.post('/escalas', dadosParaEnviar);
       alert("Escala configurada com sucesso!");
 
-      // Limpa apenas o nome após salvar, mantendo as outras seleções para facilitar o próximo cadastro
-      setFormData({ ...formData, nome_escala: '' });
+      // Limpa formulário
+      setFormData({
+        nome_escala: '',
+        cor: 'preta',
+        segmento_participante: 'todos',
+        regra_ordenacao: 'nome_guerra_asc',
+        cotas: {
+          '1° ano': 0,
+          '2° ano': 0,
+          '3° ano': 0,
+          '4° ano': 0,
+          '5° ano': 0
+        }
+      });
       carregarEscalas();
     } catch (error) {
       console.error("Erro na requisição:", error);
@@ -130,7 +159,28 @@ const CadastroEscala = () => {
                   <option value="matricula_asc">Alfabética por matrícula</option>
                   <option value="matricula_desc">Anti-alfabética por matrícula</option>
                 </select>
+              </div>
+
+              <div className="card quota-card" style={{ marginTop: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '8px' }}>
+                <h4 style={{ marginBottom: '10px' }}>Quantos alunos de cada ano serão escalados nesses dias?</h4>
+                <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '15px' }}>
+                  <strong>{formData.cor === 'preta' ? 'Segunda a Sexta:' : 'Sábado e Domingo:'}</strong>
+                </p>
                 
+                {['1° ano', '2° ano', '3° ano', '4° ano', '5° ano'].map(ano => (
+                  <div key={ano} className="form-field" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                    <label style={{ margin: 0 }}>{ano}:</label>
+                    <select 
+                      style={{ width: '80px' }}
+                      value={formData.cotas[ano]} 
+                      onChange={(e) => handleCotaChange(ano, e.target.value)}
+                    >
+                      {[...Array(11).keys()].map(n => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                    </select>
+                  </div>
+                ))}
               </div>
 
               <button type="submit" className="btn-save">
@@ -149,26 +199,40 @@ const CadastroEscala = () => {
                   <th>Nome</th>
                   <th>Cor</th>
                   <th>Segmento</th>
+                  <th>Regra de Ordenação</th>
                   <th>Ações</th>
                 </tr>
               </thead>
               <tbody>
-                {escalas.map((esc) => (
-                  <tr key={esc.id}>
-                    <td>{esc.nome_escala}</td>
-                    <td>
-                      <span className={`tag ${esc.cor}`}>
-                        {esc.cor.charAt(0).toUpperCase() + esc.cor.slice(1)}
-                      </span>
-                    </td>
-                    <td>{esc.segmento_participante.charAt(0).toUpperCase() + esc.segmento_participante.slice(1)}</td>
-                    <td>
-                      <button onClick={() => handleDelete(esc.id)} className="btn-icon-delete">
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {escalas.map((esc) => {
+                  // Mapeamento das regras para exibição amigável
+                  const regrasMap = {
+                    'nome_guerra_asc': 'Alfabética (Guerra)',
+                    'nome_guerra_desc': 'Anti-alfabética (Guerra)',
+                    'nome_completo_asc': 'Alfabética (Completo)',
+                    'nome_completo_desc': 'Anti-alfabética (Completo)',
+                    'matricula_asc': 'Alfabética (Matrícula)',
+                    'matricula_desc': 'Anti-alfabética (Matrícula)'
+                  };
+
+                  return (
+                    <tr key={esc.id}>
+                      <td>{esc.nome_escala}</td>
+                      <td>
+                        <span className={`tag ${esc.cor}`}>
+                          {esc.cor.charAt(0).toUpperCase() + esc.cor.slice(1)}
+                        </span>
+                      </td>
+                      <td>{esc.segmento_participante.charAt(0).toUpperCase() + esc.segmento_participante.slice(1)}</td>
+                      <td>{regrasMap[esc.regra_ordenacao] || esc.regra_ordenacao}</td>
+                      <td>
+                        <button onClick={() => handleDelete(esc.id)} className="btn-icon-delete">
+                          <Trash2 size={16} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

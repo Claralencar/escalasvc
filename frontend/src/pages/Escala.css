@@ -265,6 +265,112 @@ body {
   color: #6b7280;
 }
 
+/* ESTILOS DO MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  margin: 0 0 16px;
+  color: #1a233b;
+  font-size: 1.25rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 12px;
+}
+
+.modal-scroll-area {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.modal-section {
+  margin-bottom: 24px;
+}
+
+.modal-section h4 {
+  margin: 0 0 12px;
+  color: #17356f;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group-modal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.form-group-modal label {
+  font-weight: 600;
+  color: #4b5563;
+  font-size: 0.9rem;
+}
+
+.form-group-modal select {
+  width: 240px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 0.9rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.btn-cancelar {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-confirmar {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  background: #17356f;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-confirmar:hover {
+  background: #0b1d43;
+}
+
 @media (max-width: 1100px) {
   .calendario {
     grid-template-columns: repeat(2, 1fr);
