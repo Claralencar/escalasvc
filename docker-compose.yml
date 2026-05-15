@@ -1,7 +1,7 @@
 services:
   backend:
     build: ./backend
-    container_name: grupo4-backend
+    container_name: grupo3-backend
     ports:
       - "3000:3000"
     depends_on:
@@ -18,7 +18,7 @@ services:
 
   frontend:
     build: ./frontend
-    container_name: grupo4-frontend
+    container_name: grupo3-frontend
     ports:
       - "8080:5173" # O seu navegador continuará acessando 8080
     volumes:
@@ -29,7 +29,7 @@ services:
 
   mysql:
     image: mysql:8
-    container_name: grupo4-mysql
+    container_name: grupo3-mysql
     environment:
       MYSQL_ROOT_PASSWORD: servicou
       MYSQL_DATABASE: escala_db
@@ -37,7 +37,7 @@ services:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database:/docker-entrypoint-initdb.d
+#      - ./database:/docker-entrypoint-initdb.d
     restart: always
     healthcheck:
       test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]

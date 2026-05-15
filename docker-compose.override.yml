@@ -1,0 +1,24 @@
+services:
+  mysql:
+    image: mysql:8
+    ports:
+      - "8026:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=servicou
+      - MYSQL_DATABASE=escala_db
+    # Não mapeamos ./database aqui para evitar erro de permissão do servidor
+
+  backend:
+    ports:
+      - "8022:3000"
+    environment:
+      - DB_HOST=mysql
+      - DB_USER=root
+      - DB_PASSWORD=servicou
+      - DB_NAME=escala_db
+    depends_on:
+      - mysql
+
+  frontend:
+    ports:
+      - "8023:5173"
