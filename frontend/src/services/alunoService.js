@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/alunos";
+const API_URL = "http://192.168.91.176:8022/alunos";
 
 export async function listarAlunos() {
   const response = await fetch(API_URL);
