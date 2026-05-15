@@ -13,9 +13,6 @@ services:
       DB_PASSWORD: servicou
       DB_NAME: escala_db
     restart: always
-    env_file:
-      - ./backend/.env
-
   frontend:
     build: ./frontend
     container_name: grupo3-frontend
@@ -26,6 +23,7 @@ services:
       - /app/node_modules # Protege as dependências internas
     environment:
       - VITE_CHOKIDAR_USEPOLLING=true
+      - VITE_API_PROXY_TARGET=http://backend:3000
 
   mysql:
     image: mysql:8

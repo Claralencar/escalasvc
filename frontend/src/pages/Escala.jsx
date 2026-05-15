@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useSignal } from "@preact/signals-react";
 import "./Escala.css";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "/api";
 
 // Array reordenado: Começa em SEG (1) e termina em DOM (0)
 const diasSemana = [

@@ -20,9 +20,9 @@ app.get("/status", (req, res) => {
 app.use("/alunos", alunosRoutes);
 app.use("/escalas", escalasRoutes);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // O segundo parâmetro '0.0.0.0' é fundamental para aceitar conexões externas
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Servidor rodando em http://192.168.1.102:${PORT}`);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });

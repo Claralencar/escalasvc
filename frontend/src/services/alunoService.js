@@ -1,4 +1,5 @@
-const API_URL = "http://192.168.91.176:8022/alunos";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
+const API_URL = `${API_BASE_URL}/alunos`;
 
 export async function listarAlunos() {
   const response = await fetch(API_URL);
