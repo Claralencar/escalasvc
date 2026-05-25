@@ -21,7 +21,7 @@ exports.criarAlunos = async (req, res) => {
         // O segredo está aqui: usamos "|| null" para garantir que nada seja undefined
         await db.execute(query, [
             matricula || null,
-            nome_guerra || null,
+            nome_guerra || null,                                                   
             nome_completo || null,
             turma || null,
             segmento || null,
