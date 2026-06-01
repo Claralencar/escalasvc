@@ -9,8 +9,20 @@ const normalizarNome = (nome) => {
 
 exports.listarEscalas = async (req, res) => {
     try {
-        const [results] = await db.query("SELECT * FROM escalas");
-        res.json(results);
+        const [escalas] = await db.query("SELECT * FROM escalas");
+        const [cotas] = await db.query("SELECT * FROM escala_cotas_ano");
+
+        const result = escalas.map(escala => {
+            // Garantir que a comparação de ID seja feita com o mesmo tipo (String ou Number)
+            const cotasDaEscala = cotas.filter(c => String(c.escala_id) === String(escala.id));
+            const resumoCotas = {};
+            cotasDaEscala.forEach(c => {
+                resumoCotas[c.turma] = c.quantidade;
+            });
+            return { ...escala, cotas: resumoCotas };
+        });
+
+        res.json(result);
     } catch (err) {
         console.error("Erro ao listar escalas:", err);
         res.status(500).json({ error: "Erro ao buscar escalas no banco de dados" });
@@ -21,6 +33,9 @@ exports.criarEscalas = async (req, res) => {
     const { nome_escala, cor, segmento_participante, regra_ordenacao, cotas } = req.body;
 
     try {
+        console.log("--- NOVA REQUISIÇÃO DE CRIAÇÃO DE ESCALA ---");
+        console.log("Body recebido:", JSON.stringify(req.body, null, 2));
+        
         const query = `
           INSERT INTO escalas (nome_escala, cor, segmento_participante, regra_ordenacao) 
           VALUES (?, ?, ?, ?)
@@ -28,14 +43,15 @@ exports.criarEscalas = async (req, res) => {
 
         const [result] = await db.query(query, [
             nome_escala,
-            cor.toLowerCase(),
-            segmento_participante.toLowerCase(),
-            regra_ordenacao
+            cor ? cor.toLowerCase() : 'preta',
+            segmento_participante ? segmento_participante.toLowerCase() : 'todos',
+            regra_ordenacao || 'nome_guerra_asc'
         ]);
 
         const escalaId = result.insertId;
+        console.log("Escala inserida com ID:", escalaId);
 
-        let dias_semana = cor.toLowerCase() === 'preta'
+        let dias_semana = (cor && cor.toLowerCase() === 'preta')
             ? ['segunda', 'terca', 'quarta', 'quinta', 'sexta']
             : ['sabado', 'domingo'];
 
@@ -45,22 +61,33 @@ exports.criarEscalas = async (req, res) => {
                 [escalaId, dia]
             );
         }
+        console.log("Dias da semana inseridos para ID:", escalaId);
 
+        // Salvar as cotas por ano se fornecidas
         if (cotas && typeof cotas === 'object') {
+            console.log("Processando cotas:", cotas);
             for (const [turma, quantidade] of Object.entries(cotas)) {
-                if (parseInt(quantidade) > 0) {
-                    await db.query(
+                const qtd = parseInt(quantidade);
+                if (qtd > 0) {
+                    console.log(`Tentando inserir cota: Escala=${escalaId}, Turma=${turma}, Qtd=${qtd}`);
+                    const [cotaResult] = await db.query(
                         "INSERT INTO escala_cotas_ano (escala_id, turma, quantidade) VALUES (?, ?, ?)",
-                        [escalaId, turma, parseInt(quantidade)]
+                        [escalaId, turma, qtd]
                     );
+                    console.log("Resultado da inserção da cota:", cotaResult.affectedRows > 0 ? "SUCESSO" : "FALHA");
+                } else {
+                    console.log(`Pulando cota para ${turma} pois quantidade é ${quantidade}`);
                 }
             }
+        } else {
+            console.log("AVISO: Nenhuma cota recebida ou formato inválido:", typeof cotas);
         }
 
+        console.log("--- FIM DO PROCESSAMENTO DE CRIAÇÃO ---");
         res.status(201).json({ message: "Escala criada com sucesso!", id: escalaId });
     } catch (error) {
-        console.error("Erro no DB:", error);
-        res.status(500).json({ error: "Erro ao criar escala no banco" });
+        console.error("ERRO CRÍTICO NO DB:", error);
+        res.status(500).json({ error: "Erro ao criar escala no banco: " + error.message });
     }
 };
 
@@ -79,14 +106,63 @@ exports.deletarEscalas = async (req, res) => {
     }
 };
 
+exports.editarEscalas = async (req, res) => {
+    const id = req.params.id;
+    const { nome_escala, cor, segmento_participante, regra_ordenacao, cotas } = req.body;
+
+    try {
+        console.log(`--- ATUALIZANDO ESCALA ID: ${id} ---`);
+        
+        // 1. Atualizar dados básicos da escala
+        const updateQuery = `
+            UPDATE escalas 
+            SET nome_escala = ?, cor = ?, segmento_participante = ?, regra_ordenacao = ?
+            WHERE id = ?
+        `;
+        await db.query(updateQuery, [
+            nome_escala,
+            cor ? cor.toLowerCase() : 'preta',
+            segmento_participante ? segmento_participante.toLowerCase() : 'todos',
+            regra_ordenacao,
+            id
+        ]);
+
+        // 2. Atualizar cotas (mais simples deletar e inserir de novo)
+        await db.query("DELETE FROM escala_cotas_ano WHERE escala_id = ?", [id]);
+        
+        if (cotas && typeof cotas === 'object') {
+            for (const [turma, quantidade] of Object.entries(cotas)) {
+                const qtd = parseInt(quantidade);
+                if (qtd > 0) {
+                    await db.query(
+                        "INSERT INTO escala_cotas_ano (escala_id, turma, quantidade) VALUES (?, ?, ?)",
+                        [id, turma, qtd]
+                    );
+                }
+            }
+        }
+
+        console.log("--- ESCALA ATUALIZADA COM SUCESSO ---");
+        res.json({ message: "Escala atualizada com sucesso!" });
+    } catch (error) {
+        console.error("ERRO AO EDITAR ESCALA:", error);
+        res.status(500).json({ error: "Erro ao atualizar escala: " + error.message });
+    }
+};
+
 exports.gerarEscalaAutomatica = async (req, res) => {
     try {
         const { escalaPretaId, escalaVermelhaId, pontosPartida } = req.body;
+        console.log(">>> [GERAÇÃO] Iniciando geração automática");
+        console.log(">>> [GERAÇÃO] Parâmetros recebidos:", { escalaPretaId, escalaVermelhaId });
 
         const [escalasConfig] = await db.query("SELECT * FROM escalas");
         const [diasConfig] = await db.query("SELECT * FROM escala_dias_semana");
         const [alunosRaw] = await db.query("SELECT * FROM alunos");
         const [cotasDB] = await db.query("SELECT * FROM escala_cotas_ano");
+
+        console.log(`>>> [GERAÇÃO] Total de alunos no banco: ${alunosRaw.length}`);
+        console.log(`>>> [GERAÇÃO] Total de cotas configuradas: ${cotasDB.length}`);
 
         if (alunosRaw.length === 0) return res.status(400).json({ error: "Nenhum aluno cadastrado." });
 
@@ -94,6 +170,8 @@ exports.gerarEscalaAutomatica = async (req, res) => {
         if (idsSelecionados.length === 0) return res.status(400).json({ error: "Selecione uma escala." });
 
         const escalasParaGerar = escalasConfig.filter(e => idsSelecionados.map(String).includes(String(e.id)));
+        console.log(`>>> [GERAÇÃO] Escalas a processar: ${escalasParaGerar.map(e => e.nome_escala).join(", ")}`);
+
         const mapaDias = { 'domingo': 0, 'segunda': 1, 'terca': 2, 'quarta': 3, 'quinta': 4, 'sexta': 5, 'sabado': 6 };
         const resultados = [];
 
@@ -101,21 +179,17 @@ exports.gerarEscalaAutomatica = async (req, res) => {
         const alunosAptos = alunosRaw.filter(a => {
             const statusSaude = String(a.estado_saude || '').trim().toLowerCase();
             const statusFuncao = String(a.funcao || '').trim().toLowerCase();
-            return statusSaude === 'apto' && statusFuncao !== 'sim' && statusFuncao !== 's';
+            const ehApto = statusSaude !== 'não apto' && statusSaude !== 'nao apto';
+            const ehComando = statusFuncao === 'sim' || statusFuncao === 's';
+            
+            if (!ehApto) console.log(`>>> [FILTRO] Aluno ${a.nome_guerra} removido: Saúde (${statusSaude})`);
+            if (ehComando) console.log(`>>> [FILTRO] Aluno ${a.nome_guerra} removido: Comando (${statusFuncao})`);
+            
+            return ehApto && !ehComando;
         });
+        console.log(`>>> [GERAÇÃO] Total de alunos aptos após filtros: ${alunosAptos.length}`);
 
-        // 2. Histórico de Serviços (Controle Global de 48h)
-        const ultimoServicoPorAluno = {};
-        const [historico] = await db.query(
-            "SELECT matricula_aluno, MAX(data_servico) as ultima_data FROM escala_gerada GROUP BY matricula_aluno"
-        );
-        historico.forEach(h => {
-            const d = new Date(h.ultima_data);
-            d.setHours(0, 0, 0, 0);
-            ultimoServicoPorAluno[String(h.matricula_aluno)] = d;
-        });
-
-        // 3. Datas da Próxima Semana
+        // 2. Datas da Próxima Semana (Segunda -> Domingo)
         const hoje = new Date();
         const proximaSegunda = new Date(hoje);
         const diasAteSegunda = (1 - hoje.getDay() + 7) % 7 || 7;
@@ -126,6 +200,20 @@ exports.gerarEscalaAutomatica = async (req, res) => {
         dataFim.setDate(proximaSegunda.getDate() + 6);
         dataFim.setHours(23, 59, 59, 999);
 
+        console.log(`>>> [GERAÇÃO] Período: ${proximaSegunda.toLocaleDateString()} até ${dataFim.toLocaleDateString()}`);
+
+        // 3. Histórico de Serviços (Controle Global de 48h)
+        const ultimoServicoPorAluno = {};
+        const [historico] = await db.query(
+            "SELECT matricula_aluno, MAX(data_servico) as ultima_data FROM escala_gerada WHERE data_servico < ? GROUP BY matricula_aluno",
+            [proximaSegunda]
+        );
+        historico.forEach(h => {
+            const d = new Date(h.ultima_data);
+            d.setHours(0, 0, 0, 0);
+            ultimoServicoPorAluno[String(h.matricula_aluno)] = d;
+        });
+
         // Limpeza dos dias que vamos gerar
         await db.query("DELETE FROM escala_gerada WHERE data_servico BETWEEN ? AND ?", [proximaSegunda, dataFim]);
 
@@ -133,10 +221,9 @@ exports.gerarEscalaAutomatica = async (req, res) => {
         const filaEscalas = {};
         escalasParaGerar.forEach(escala => {
             filaEscalas[escala.id] = {};
-            const turmas = ['1° ano', '2° ano', '3° ano', '4° ano', '5° ano'];
+            const turmasList = ['1° ano', '2° ano', '3° ano', '4° ano', '5° ano'];
             
-            turmas.forEach(turma => {
-                // Filtrar por turma e segmento da escala
+            turmasList.forEach(turma => {
                 let fila = alunosAptos.filter(a => {
                     const turmaBate = String(a.turma) === turma;
                     const segEscala = String(escala.segmento_participante || "").toLowerCase().normalize("NFD").replace(/[^a-z0-9]/g, "");
@@ -145,7 +232,6 @@ exports.gerarEscalaAutomatica = async (req, res) => {
                     return turmaBate && segmentoBate;
                 });
 
-                // Ordenar conforme regra da escala
                 fila.sort((a, b) => {
                     const regra = escala.regra_ordenacao || "";
                     let res = 0;
@@ -159,7 +245,6 @@ exports.gerarEscalaAutomatica = async (req, res) => {
                     return regra.includes('asc') ? res : -res;
                 });
 
-                // Rotação inicial (Ponto de Partida)
                 const corChave = escala.cor === 'preta' ? 'preta' : 'vermelha';
                 const matInicio = pontosPartida && pontosPartida[corChave] && pontosPartida[corChave][turma];
                 
@@ -170,6 +255,7 @@ exports.gerarEscalaAutomatica = async (req, res) => {
                     fila = [...posterior, ...anterior];
                 }
                 filaEscalas[escala.id][turma] = fila;
+                console.log(`>>> [FILA] Escala ${escala.nome_escala} - ${turma}: ${fila.length} alunos`);
             });
         });
 
@@ -180,78 +266,110 @@ exports.gerarEscalaAutomatica = async (req, res) => {
             dataAtual.setHours(0, 0, 0, 0);
 
             let diaSemanaJS = dataAtual.getDay();
-            
-            // Buscar quais escalas rodam neste dia (Seg-Sex = Pretas, Sab-Dom = Vermelhas)
+            const diaNome = Object.keys(mapaDias).find(key => mapaDias[key] === diaSemanaJS);
+
             const escalasDoDia = diasConfig.filter(d =>
                 mapaDias[d.dia_semana] === diaSemanaJS &&
                 escalasParaGerar.some(eg => String(eg.id) === String(d.escala_id))
             );
 
+            console.log(`\n>>> [DIA] Processando ${diaNome.toUpperCase()} (${dataAtual.toLocaleDateString()})`);
+
             for (const config of escalasDoDia) {
                 const escalaInfo = escalasParaGerar.find(e => String(e.id) === String(config.escala_id));
                 const cotasEscala = cotasDB.filter(c => String(c.escala_id) === String(escalaInfo.id));
 
-                for (const cota of cotasEscala) {
-                    const turma = cota.turma;
+                console.log(`  > Escala: ${escalaInfo.nome_escala} (Cotas encontradas: ${cotasEscala.length})`);
+
+                // Se não houver cotas específicas, escala pelo menos 1 de qualquer ano
+                const turmasParaEscalar = cotasEscala.length > 0 
+                    ? cotasEscala 
+                    : [{ turma: 'todos', quantidade: 1 }];
+
+                for (const cota of turmasParaEscalar) {
+                    const turmaAlvo = cota.turma;
                     const qtdNecessaria = cota.quantidade;
-                    let qtdEscalada = 0;
+                    console.log(`    - Buscando ${qtdNecessaria} alunos para ${turmaAlvo}`);
                     
-                    let fila = filaEscalas[escalaInfo.id][turma];
-                    if (!fila || fila.length === 0) continue;
+                    const turmasDaCota = turmaAlvo === 'todos' 
+                        ? ['1° ano', '2° ano', '3° ano', '4° ano', '5° ano'] 
+                        : [turmaAlvo];
 
-                    // Para cada vaga da cota
                     for (let q = 0; q < qtdNecessaria; q++) {
-                        let alunoEncontrado = null;
-                        let indexEncontrado = -1;
+                        let alunoEscalado = null;
+                        let indexNaFila = -1;
+                        let turmaDoEscalado = null;
 
-                        // Percorre a fila procurando o primeiro descansado
-                        for (let f = 0; f < fila.length; f++) {
-                            const candidato = fila[f];
-                            const ultimaData = ultimoServicoPorAluno[String(candidato.matricula)];
-                            let descansado = true;
-                            
-                            if (ultimaData) {
-                                const diffTime = dataAtual.getTime() - ultimaData.getTime();
-                                const diffDias = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-                                descansado = diffDias >= 3; // Regra de 48h (D+3)
-                            }
+                        for (const t of turmasDaCota) {
+                            let fila = filaEscalas[escalaInfo.id][t];
+                            if (!fila || fila.length === 0) continue;
 
-                            if (descansado) {
-                                alunoEncontrado = candidato;
-                                indexEncontrado = f;
-                                break;
+                            for (let f = 0; f < fila.length; f++) {
+                                const candidato = fila[f];
+                                const ultimaData = ultimoServicoPorAluno[String(candidato.matricula)];
+                                let descansado = true;
+                                if (ultimaData) {
+                                    const diffTime = dataAtual.getTime() - ultimaData.getTime();
+                                    const diffHoras = Math.round(diffTime / (1000 * 60 * 60));
+                                    // Para não escalar no sábado nem domingo (se escalado na sexta), 
+                                    // a diferença deve ser maior que 48 horas (ou seja, só na segunda).
+                                    descansado = diffHoras > 48;
+                                }
+
+                                if (descansado) {
+                                    alunoEscalado = candidato;
+                                    indexNaFila = f;
+                                    turmaDoEscalado = t;
+                                    break;
+                                }
                             }
+                            if (alunoEscalado) break;
                         }
 
-                        if (alunoEncontrado) {
-                            // FORMATAÇÃO: NomeDeGuerra (X° ano)
-                            const nomeFormatado = `${alunoEncontrado.nome_guerra} (${alunoEncontrado.turma})`;
+                        if (alunoEscalado) {
+                            const guerra = (alunoEscalado.nome_guerra || alunoEscalado.nome_completo || 'ALUNO').toUpperCase();
+                            const nomeFormatado = `${guerra} (${alunoEscalado.turma})`;
                             
                             await db.query(
                                 "INSERT INTO escala_gerada (escala_id, matricula_aluno, data_servico, nome_aluno_formatado) VALUES (?, ?, ?, ?)",
-                                [escalaInfo.id, alunoEncontrado.matricula, dataAtual, nomeFormatado]
+                                [escalaInfo.id, alunoEscalado.matricula, dataAtual, nomeFormatado]
                             );
 
                             resultados.push({
                                 data: dataAtual,
                                 escala: escalaInfo.nome_escala,
-                                nome_guerra: alunoEncontrado.nome_guerra,
+                                nome_guerra: guerra,
                                 nome_completo: nomeFormatado,
-                                turma: alunoEncontrado.turma
+                                turma: alunoEscalado.turma
                             });
 
-                            // Atualiza histórico de descanso
-                            ultimoServicoPorAluno[String(alunoEncontrado.matricula)] = new Date(dataAtual);
+                            ultimoServicoPorAluno[String(alunoEscalado.matricula)] = new Date(dataAtual);
                             
-                            // LOGICA CIRCULAR: Move APENAS o escalado para o final da fila
-                            fila.splice(indexEncontrado, 1);
-                            fila.push(alunoEncontrado);
+                            // Logística: Move para o final da fila
+                            let filaOrigem = filaEscalas[escalaInfo.id][turmaDoEscalado];
+                            filaOrigem.splice(indexNaFila, 1);
+                            filaOrigem.push(alunoEscalado);
+                            filaEscalas[escalaInfo.id][turmaDoEscalado] = filaOrigem;
                             
-                            qtdEscalada++;
+                            console.log(`      [OK] Escalado: ${guerra}`);
+                        } else {
+                            const aviso = `NÃO FOI POSSÍVEL ESCALAR (${turmaAlvo.toUpperCase()})`;
+                            console.log(`      [AVISO] ${aviso}`);
+
+                            await db.query(
+                                "INSERT INTO escala_gerada (escala_id, matricula_aluno, data_servico, nome_aluno_formatado) VALUES (?, NULL, ?, ?)",
+                                [escalaInfo.id, dataAtual, aviso]
+                            );
+
+                            resultados.push({
+                                data: dataAtual,
+                                escala: escalaInfo.nome_escala,
+                                nome_guerra: "AVISO",
+                                nome_completo: aviso,
+                                turma: turmaAlvo
+                            });
                         }
                     }
-                    // Atualiza a fila da escala para o próximo dia/vaga
-                    filaEscalas[escalaInfo.id][turma] = fila;
                 }
             }
         }
@@ -263,6 +381,46 @@ exports.gerarEscalaAutomatica = async (req, res) => {
     }
 };
 
+const gerarCorpoRelatorio = (doc, dados) => {
+    doc.fontSize(18).text("ADITAMENTO AO BOLETIM INTERNO", { align: "center" });
+    doc.moveDown(2);
+
+    if (dados.length === 0) {
+        doc.fontSize(12).text("Não há escalas geradas para o período selecionado.", { align: "center" });
+        return;
+    }
+
+    // Agrupar dados por data
+    const gruposPorData = {};
+    dados.forEach(item => {
+        const dataStr = new Date(item.data_servico).toLocaleDateString('pt-BR', {
+            weekday: 'long', 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit'
+        }).toUpperCase();
+        
+        if (!gruposPorData[dataStr]) gruposPorData[dataStr] = {};
+        if (!gruposPorData[dataStr][item.nome_escala]) gruposPorData[dataStr][item.nome_escala] = [];
+        gruposPorData[dataStr][item.nome_escala].push(item.nome_aluno_formatado);
+    });
+
+    // Renderizar grupos no PDF
+    Object.entries(gruposPorData).forEach(([data, escalas]) => {
+        doc.fillColor("#1a233b").fontSize(14).text(data, { underline: true });
+        doc.moveDown(0.5);
+
+        Object.entries(escalas).forEach(([nomeEscala, alunos]) => {
+            doc.fillColor("#333").fontSize(12).text(`  • ${nomeEscala}:`, { continued: false });
+            alunos.forEach(aluno => {
+                doc.fillColor("#000").fontSize(12).text(`    - ${aluno}`);
+            });
+            doc.moveDown(0.5);
+        });
+        doc.moveDown(1);
+    });
+};
+
 exports.baixarPdfAditamento = async (req, res) => {
     try {
         const query = `
@@ -270,24 +428,17 @@ exports.baixarPdfAditamento = async (req, res) => {
             FROM escala_gerada eg 
             JOIN escalas e ON eg.escala_id = e.id 
             WHERE eg.data_servico >= CURDATE()
-            ORDER BY eg.data_servico ASC
+            ORDER BY eg.data_servico ASC, e.nome_escala ASC
         `;
         const [dados] = await db.query(query);
 
-        const doc = new PDFDocument();
+        const doc = new PDFDocument({ margin: 50 });
         res.setHeader('Content-Type', 'application/pdf');
         res.setHeader('Content-Disposition', 'attachment; filename=aditamento.pdf');
         doc.pipe(res);
 
-        doc.fontSize(18).text("ADITAMENTO AO BOLETIM INTERNO", { align: "center" });
-        doc.moveDown();
-        doc.fontSize(12).text(`Gerado em: ${new Date().toLocaleDateString('pt-BR')}`);
-        doc.moveDown();
-
-        dados.forEach(item => {
-            const dataFormatada = new Date(item.data_servico).toLocaleDateString('pt-BR');
-            doc.text(`${dataFormatada} - ${item.nome_escala}: ${item.nome_aluno_formatado}`);
-        });
+        gerarCorpoRelatorio(doc, dados);
+        
         doc.end();
     } catch (err) {
         console.error("Erro ao gerar PDF:", err);
@@ -302,7 +453,7 @@ exports.enviarEmailAditamento = async (req, res) => {
             FROM escala_gerada eg
             JOIN escalas e ON eg.escala_id = e.id
             WHERE eg.data_servico >= CURDATE()
-            ORDER BY eg.data_servico ASC
+            ORDER BY eg.data_servico ASC, e.nome_escala ASC
         `;
         const [dados] = await db.query(query);
 
@@ -318,16 +469,11 @@ exports.enviarEmailAditamento = async (req, res) => {
             }
         });
 
-        const doc = new PDFDocument();
+        const doc = new PDFDocument({ margin: 50 });
         let chunks = [];
         doc.on('data', chunk => chunks.push(chunk));
 
-        doc.fontSize(18).text("ADITAMENTO AO BOLETIM INTERNO", { align: "center" });
-        doc.moveDown();
-        dados.forEach(item => {
-            const dataFormatada = new Date(item.data_servico).toLocaleDateString('pt-BR');
-            doc.fontSize(12).text(`${dataFormatada} - ${item.nome_escala}: ${item.nome_aluno_formatado}`);
-        });
+        gerarCorpoRelatorio(doc, dados);
         doc.end();
 
         doc.on('end', async () => {

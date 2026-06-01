@@ -8,10 +8,18 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Middleware de Log Global
+app.use((req, res, next) => {
+  console.log(`>>> [CONEXÃO DETECTADA] ${req.method} ${req.url} - ${new Date().toLocaleTimeString()}`);
+  next();
+});
+
 // Rota de status
 app.get("/status", (req, res) => {
+  console.log(">>> [HEARTBEAT] Alguém acessou a rota de status!");
   res.json({
-    status: "API funcionando",
+    status: "API ON - DOCKER ATIVO",
+    debug_tag: "VERIFICADO_PELO_AGENTE",
     timestamp: new Date()
   });
 });

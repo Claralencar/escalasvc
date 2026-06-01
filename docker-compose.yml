@@ -1,9 +1,12 @@
 services:
   backend:
     build: ./backend
-    container_name: grupo3-backend
+    container_name: grupo4-backend
+    command: node --watch src/server.js
     ports:
       - "3000:3000"
+    volumes:
+      - ./backend:/app
     depends_on:
       mysql:
         condition: service_healthy
@@ -15,7 +18,7 @@ services:
     restart: always
   frontend:
     build: ./frontend
-    container_name: grupo3-frontend
+    container_name: grupo4-frontend
     ports:
       - "8080:5173" # O seu navegador continuará acessando 8080
     volumes:
@@ -27,7 +30,7 @@ services:
 
   mysql:
     image: mysql:8
-    container_name: grupo3-mysql
+    container_name: grupo4-mysql
     environment:
       MYSQL_ROOT_PASSWORD: servicou
       MYSQL_DATABASE: escala_db

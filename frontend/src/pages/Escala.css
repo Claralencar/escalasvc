@@ -240,6 +240,12 @@ body {
   font-size: 13px;
 }
 
+.card-nome.aviso-erro {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
 .card-informativo {
   margin-top: 22px;
   background: white;

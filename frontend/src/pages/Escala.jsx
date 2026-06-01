@@ -42,21 +42,22 @@ function Escala() {
         const resEscalas = await fetch(`${API_URL}/escalas`);
         const resAlunos = await fetch(`${API_URL}/alunos`);
 
-        if (!resStatus.ok) throw new Error("Erro ao consultar status");
-
-        const dadosStatus = await resStatus.json();
-        setStatusApi(dadosStatus.status || "API funcionando");
+        if (resStatus.ok) {
+          const dadosStatus = await resStatus.json();
+          setStatusApi(dadosStatus.status || "API ON");
+        }
 
         if (resEscalas.ok) {
           const dadosEscalas = await resEscalas.json();
+          console.log(">>> [DEBUG] Escalas vindas do banco:", dadosEscalas);
           escalasConfig.value = Array.isArray(dadosEscalas) ? dadosEscalas : [];
         }
 
         if (resAlunos.ok) {
           const dadosAlunos = await resAlunos.json();
           // Filtra apenas alunos aptos e que não são comando para a lista do modal
-          const aptos = dadosAlunos.filter(a => 
-            String(a.estado_saude).toLowerCase().trim() === 'apto' && 
+          const aptos = dadosAlunos.filter(a =>
+            String(a.estado_saude).toLowerCase().trim() === 'apto' &&
             String(a.funcao).toLowerCase().trim() !== 'sim' &&
             String(a.funcao).toLowerCase().trim() !== 's'
           );
@@ -152,8 +153,8 @@ function Escala() {
     });
   };
 
-  const escalasPretas = escalasConfig.value.filter(e => e.cor === 'preta');
-  const escalasVermelhas = escalasConfig.value.filter(e => e.cor === 'vermelha');
+  const escalasPretas = (escalasConfig.value || []).filter(e => String(e.cor).toLowerCase() === 'preta');
+  const escalasVermelhas = (escalasConfig.value || []).filter(e => String(e.cor).toLowerCase() === 'vermelha');
 
   const turmas = ['1° ano', '2° ano', '3° ano', '4° ano', '5° ano'];
 
@@ -164,7 +165,7 @@ function Escala() {
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>A partir de qual aluno a escala começa a rodar?</h3>
-            
+
             <div className="modal-scroll-area">
               {escalaPretaSelecionada && (
                 <div className="modal-section">
@@ -172,8 +173,8 @@ function Escala() {
                   {turmas.map(turma => (
                     <div key={`preta-${turma}`} className="form-group-modal">
                       <label>{turma}:</label>
-                      <select 
-                        value={pontosPartida.preta[turma]} 
+                      <select
+                        value={pontosPartida.preta[turma]}
                         onChange={(e) => updatePontoPartida('preta', turma, e.target.value)}
                       >
                         <option value="">-- Próximo da lista --</option>
@@ -198,8 +199,8 @@ function Escala() {
                   {turmas.map(turma => (
                     <div key={`vermelha-${turma}`} className="form-group-modal">
                       <label>{turma}:</label>
-                      <select 
-                        value={pontosPartida.vermelha[turma]} 
+                      <select
+                        value={pontosPartida.vermelha[turma]}
                         onChange={(e) => updatePontoPartida('vermelha', turma, e.target.value)}
                       >
                         <option value="">-- Próximo da lista --</option>
@@ -261,10 +262,6 @@ function Escala() {
           </select>
         </div>
 
-        <div className="barra-status">
-          <span><strong>Status da API:</strong> {statusApi}</span>
-          <span><strong>Total de configurações ativas no banco:</strong> {escalasConfig.value.length}</span>
-        </div>
 
         {erro && <div className="caixa-erro">{erro}</div>}
 
@@ -285,12 +282,15 @@ function Escala() {
                   ) : escalasNesteDia.length === 0 ? (
                     <div className="card-vazio">Livre</div>
                   ) : (
-                    escalasNesteDia.map((escala, index) => (
-                      <div key={index} className="card-nome" title={escala.nome_completo}>
-                        <small>{escala.escala}</small><br />
-                        <strong>{escala.nome_completo}</strong>
-                      </div>
-                    ))
+                    escalasNesteDia.map((escala, index) => {
+                      const ehErro = String(escala.nome_completo).includes("NÃO FOI POSSÍVEL");
+                      return (
+                        <div key={index} className={`card-nome ${ehErro ? 'aviso-erro' : ''}`} title={escala.nome_completo}>
+                          <small>{escala.escala}</small><br />
+                          <strong>{escala.nome_completo}</strong>
+                        </div>
+                      );
+                    })
                   )}
                 </div>
               </div>

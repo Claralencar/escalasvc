@@ -5,6 +5,7 @@ const escalasController = require("../controllers/escalasController");
 // Rotas Base
 router.get("/", escalasController.listarEscalas);
 router.post("/", escalasController.criarEscalas);
+router.put("/:id", escalasController.editarEscalas);
 router.delete("/:id", escalasController.deletarEscalas);
 
 // Rotas da Funcionalidade F3

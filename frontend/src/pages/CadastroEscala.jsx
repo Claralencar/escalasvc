@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { Trash2, Plus, Settings } from 'lucide-react';
+import { Trash2, Plus, Settings, Edit2, X } from 'lucide-react';
 import './CadastroEscala.css';
 
 const CadastroEscala = () => {
   const [escalas, setEscalas] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
   // Estado alinhado com o banco de dados e com os values dos <options>
   const [formData, setFormData] = useState({
@@ -31,6 +32,41 @@ const CadastroEscala = () => {
     }));
   };
 
+  const handleEdit = (escala) => {
+    setEditingId(escala.id);
+    setFormData({
+      nome_escala: escala.nome_escala,
+      cor: escala.cor,
+      segmento_participante: escala.segmento_participante,
+      regra_ordenacao: escala.regra_ordenacao,
+      cotas: {
+        '1° ano': escala.cotas?.['1° ano'] || 0,
+        '2° ano': escala.cotas?.['2° ano'] || 0,
+        '3° ano': escala.cotas?.['3° ano'] || 0,
+        '4° ano': escala.cotas?.['4° ano'] || 0,
+        '5° ano': escala.cotas?.['5° ano'] || 0
+      }
+    });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setFormData({
+      nome_escala: '',
+      cor: 'preta',
+      segmento_participante: 'todos',
+      regra_ordenacao: 'nome_guerra_asc',
+      cotas: {
+        '1° ano': 0,
+        '2° ano': 0,
+        '3° ano': 0,
+        '4° ano': 0,
+        '5° ano': 0
+      }
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -41,27 +77,19 @@ const CadastroEscala = () => {
         segmento_participante: formData.segmento_participante.toLowerCase()
       };
 
-      await api.post('/escalas', dadosParaEnviar);
-      alert("Escala configurada com sucesso!");
+      if (editingId) {
+        await api.put(`/escalas/${editingId}`, dadosParaEnviar);
+        alert("Escala atualizada com sucesso!");
+      } else {
+        await api.post('/escalas', dadosParaEnviar);
+        alert("Escala configurada com sucesso!");
+      }
 
-      // Limpa formulário
-      setFormData({
-        nome_escala: '',
-        cor: 'preta',
-        segmento_participante: 'todos',
-        regra_ordenacao: 'nome_guerra_asc',
-        cotas: {
-          '1° ano': 0,
-          '2° ano': 0,
-          '3° ano': 0,
-          '4° ano': 0,
-          '5° ano': 0
-        }
-      });
+      cancelEdit();
       carregarEscalas();
     } catch (error) {
       console.error("Erro na requisição:", error);
-      alert("Erro ao criar escala no banco de dados.");
+      alert("Erro ao salvar escala no banco de dados.");
     }
   };
 
@@ -112,7 +140,7 @@ const CadastroEscala = () => {
           </div>
 
           <div className="card form-card">
-            <h3>2. Configuração de Nova Escala</h3>
+            <h3>2. {editingId ? 'Editar Configuração' : 'Configuração de Nova Escala'}</h3>
             <form onSubmit={handleSubmit}>
               <div className="form-field">
                 <label>Nome da Escala</label>
@@ -166,13 +194,13 @@ const CadastroEscala = () => {
                 <p style={{ fontSize: '0.9rem', color: '#666', marginBottom: '15px' }}>
                   <strong>{formData.cor === 'preta' ? 'Segunda a Sexta:' : 'Sábado e Domingo:'}</strong>
                 </p>
-                
+
                 {['1° ano', '2° ano', '3° ano', '4° ano', '5° ano'].map(ano => (
                   <div key={ano} className="form-field" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                     <label style={{ margin: 0 }}>{ano}:</label>
-                    <select 
+                    <select
                       style={{ width: '80px' }}
-                      value={formData.cotas[ano]} 
+                      value={formData.cotas[ano]}
                       onChange={(e) => handleCotaChange(ano, e.target.value)}
                     >
                       {[...Array(11).keys()].map(n => (
@@ -183,9 +211,25 @@ const CadastroEscala = () => {
                 ))}
               </div>
 
-              <button type="submit" className="btn-save">
-                <Plus size={18} /> Adicionar Configuração
-              </button>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="submit" className="btn-save" style={{ flex: 1 }}>
+                  {editingId ? <><Plus size={18} /> Salvar Alterações</> : <><Plus size={18} /> Adicionar Configuração</>}
+                </button>
+                {editingId && (
+                  <button type="button" onClick={cancelEdit} className="btn-cancel" style={{
+                    padding: '12px 18px',
+                    borderRadius: '10px',
+                    border: '1px solid #d1d5db',
+                    background: '#f3f4f6',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}>
+                    <X size={18} /> Cancelar
+                  </button>
+                )}
+              </div>
             </form>
           </div>
         </div>
@@ -199,6 +243,7 @@ const CadastroEscala = () => {
                   <th>Nome</th>
                   <th>Cor</th>
                   <th>Segmento</th>
+                  <th>Alunos por Ano</th>
                   <th>Regra de Ordenação</th>
                   <th>Ações</th>
                 </tr>
@@ -215,6 +260,18 @@ const CadastroEscala = () => {
                     'matricula_desc': 'Anti-alfabética (Matrícula)'
                   };
 
+                  const renderCotas = () => {
+                    if (!esc.cotas) return 'N/A';
+                    const activeCotas = Object.entries(esc.cotas).filter(([_, qtd]) => qtd > 0);
+                    if (activeCotas.length === 0) return 'Nenhuma cota';
+
+                    return activeCotas.map(([ano, qtd]) => (
+                      <div key={ano} style={{ whiteSpace: 'nowrap' }}>
+                        {ano.split('°')[0]}°: {qtd}
+                      </div>
+                    ));
+                  };
+
                   return (
                     <tr key={esc.id}>
                       <td>{esc.nome_escala}</td>
@@ -224,11 +281,19 @@ const CadastroEscala = () => {
                         </span>
                       </td>
                       <td>{esc.segmento_participante.charAt(0).toUpperCase() + esc.segmento_participante.slice(1)}</td>
+                      <td style={{ fontSize: '0.85rem', color: '#555', padding: '8px 4px' }}>
+                        {renderCotas()}
+                      </td>
                       <td>{regrasMap[esc.regra_ordenacao] || esc.regra_ordenacao}</td>
                       <td>
-                        <button onClick={() => handleDelete(esc.id)} className="btn-icon-delete">
-                          <Trash2 size={16} />
-                        </button>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button onClick={() => handleEdit(esc)} className="btn-icon-edit" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#17356f' }}>
+                            <Edit2 size={16} />
+                          </button>
+                          <button onClick={() => handleDelete(esc.id)} className="btn-icon-delete" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#dc2626' }}>
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
