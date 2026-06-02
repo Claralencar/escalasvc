@@ -164,7 +164,7 @@ A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que parti
 * Função (Sim/Não)
 * Estado de Saúde (Apto/Não Apto)
 * E-mail Institucional
-<img width="1650" height="890" alt="image" src="https://github.com/user-attachments/assets/c1daf4cd-171e-4909-ae2b-809af530b0c7" />
+<img width="1715" height="858" alt="Captura de tela 2026-06-01 163112" src="https://github.com/user-attachments/assets/ed69213b-fa5d-42da-a885-b5611d5cce01" />
 
 
 ## Endpoints da API (Funcionalidade F1)
@@ -180,7 +180,8 @@ A Funcionalidade F1 permite o gerenciamento completo (CRUD) dos alunos que parti
 ## Funcionalidade F2: Cadastro da Escala
 
 A Funcionalidade F2 permite a parametrização das regras que regem a distribuição dos serviços. Através desta interface, define-se quais grupos participam de cada tipo de escala e qual critério de antiguidade/ordenação será aplicado automaticamente pelo sistema.
-<img width="1237" height="695" alt="image" src="https://github.com/user-attachments/assets/94fa26c7-4d65-472f-aabf-349fe8f55963" />
+<img width="1731" height="884" alt="Captura de tela 2026-06-01 163050" src="https://github.com/user-attachments/assets/96fda5c3-26ca-40f7-b96c-e2836e84ab66" />
+
 
 ### Parâmetros de Configuração
 Cada escala cadastrada no sistema possui os seguintes atributos:
@@ -194,6 +195,7 @@ Cada escala cadastrada no sistema possui os seguintes atributos:
   * Alfabética ou Anti-alfabética por Nome de Guerra.
   * Alfabética ou Anti-alfabética por Nome Completo.
   * Alfabética ou Anti-alfabética por Número de Matrícula.
+* **Alunos por Ano:** Quantidade de alunos de cada ano que deverão ser escalados em cada dia.
 
 ### Endpoints da API (Funcionalidade F2)
 
@@ -204,14 +206,14 @@ Cada escala cadastrada no sistema possui os seguintes atributos:
 ## Funcionalidade F3: Geração Automática da Escala e Aditamento
 
 A Funcionalidade F3 é o núcleo automatizado do sistema. Ela cruza as parametrizações definidas na configuração de escalas (F2) com a lista de alunos ativos (F1) para distribuir, de forma inteligente e justa, os serviços da semana seguinte, além de automatizar a parte burocrática de comunicação.
+<img width="1596" height="874" alt="Captura de tela 2026-06-01 163738" src="https://github.com/user-attachments/assets/fafc4816-2024-4e9b-a69b-2c828b0fc718" />
 
-<img width="1447" height="867" alt="image" src="https://github.com/user-attachments/assets/1cecb68b-a57a-4266-b9e3-75326865fa21" />
 
 ### Características e Regras de Negócio
 
-* **Visualização e Geração Flexível:** A interface permite que o utilizador selecione quais escalas deseja executar simultaneamente (ex: uma Escala Preta para dias úteis e uma Escala Vermelha para o fim de semana) e exibe o resultado visualmente num calendário iterativo de 7 dias.
-* **Regra de Descanso Regulamentar (48h):** O algoritmo de distribuição possui um controlo rigoroso de folgas. Antes de escalar um aluno, o sistema rastreia o último serviço prestado através do número de matrícula e garante que o militar tenha um intervalo de descanso mínimo de 48 horas (não podendo ser escalado caso tenha tirado serviço no dia anterior ou no dia anterior a este).
-* **Normalização de Documentos:** Para evitar inconsistências no aditamento, o sistema aplica um filtro rigoroso que remove os acentos de forma automatizada única e exclusivamente do Nome Completo do militar, preservando a integridade das outras informações.
+* **Visualização e Geração Flexível:** A interface permite que o utilizador selecione quais escalas deseja executar simultaneamente (ex: uma Escala Preta para dias úteis e uma Escala Vermelha para o fim de semana) e exibe o resultado visualmente num calendário de 7 dias.
+* **Regra de Descanso Regulamentar (48h):** O algoritmo de distribuição possui um controlo de folgas. Antes de escalar um aluno, o sistema rastreia o último serviço prestado através do número de matrícula e garante que o militar tenha um intervalo de descanso mínimo de 48 horas (não podendo ser escalado caso tenha tirado serviço no dia anterior ou no dia anterior a este).
+* **Normalização de Documentos:** Para evitar inconsistências no aditamento, o sistema aplica um filtro que remove os acentos de forma automatizada única e exclusivamente do Nome Completo do militar, preservando a integridade das outras informações.
 * **Geração de Documento Oficial:** O sistema compila o cronograma gerado e constrói de forma nativa um documento em PDF formatado como "Aditamento ao Boletim Interno".
 * **Notificação Automatizada:** Com um único clique, o sistema anexa o PDF gerado e dispara e-mails automáticos para o Comandante de Companhia, o Sargenteante e demais instâncias de gestão definidas.
 
@@ -263,13 +265,15 @@ Escaneie o QR Code gerado no terminal com a camera do seu celular ou atraves do 
 
 ## Funcionalidade F1: Cadastro de Alunos (Mobile)
 A versao mobile implementa o ciclo completo de gerenciamento da funcionalidade F1 com foco em usabilidade (UX).
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-03 at 21 46 12" src="https://github.com/user-attachments/assets/3098ae51-ee2e-4171-91dd-6afdd72165b8" />
-<img width="720" height="1600" alt="WhatsApp Image 2026-05-03 at 21 46 12 (1)" src="https://github.com/user-attachments/assets/36ce761c-95de-4183-ad33-485d7acc6620" />
+<img width="720" height="1600" alt="WhatsApp Image 2026-06-01 at 20 31 34 (1)" src="https://github.com/user-attachments/assets/ba3d1e51-566f-4064-b55a-7bfbe0334208" />
+<img width="720" height="1600" alt="WhatsApp Image 2026-06-01 at 20 31 34" src="https://github.com/user-attachments/assets/7094ad5e-79dc-4e06-9af7-fb3724de2c2b" />
+
 
 ### Recursos Implementados
 * **CRUD Completo**: Cadastro, listagem, edicao e exclusao de alunos integrados ao banco de dados MySQL.
 * **Interface Otimizada**: Visual em Cards com separacao clara de informacoes e cabecalho dinamico conforme as regras de negocio.
 * **Seletores Inteligentes**:
+    * **Turma**: Escolha rapida de turma.
     * **Segmento**: Escolha rapida entre Masculino e Feminino.
     * **Saude**: Selecao binaria (Apto / Nao Apto) para evitar erros de digitacao e padronizar os dados.
     * **Funcao**: Seletor de status para indicar se o aluno possui funcao atribuida (Sim / Nao).
