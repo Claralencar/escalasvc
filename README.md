@@ -265,8 +265,8 @@ Escaneie o QR Code gerado no terminal com a camera do seu celular ou atraves do 
 
 ## Funcionalidade F1: Cadastro de Alunos (Mobile)
 A versao mobile implementa o ciclo completo de gerenciamento da funcionalidade F1 com foco em usabilidade (UX).
-<img width="720" height="1600" alt="WhatsApp Image 2026-06-01 at 20 31 34 (1)" src="https://github.com/user-attachments/assets/ba3d1e51-566f-4064-b55a-7bfbe0334208" />
 <img width="720" height="1600" alt="WhatsApp Image 2026-06-01 at 20 31 34" src="https://github.com/user-attachments/assets/7094ad5e-79dc-4e06-9af7-fb3724de2c2b" />
+<img width="720" height="1600" alt="WhatsApp Image 2026-06-01 at 20 31 34 (1)" src="https://github.com/user-attachments/assets/ba3d1e51-566f-4064-b55a-7bfbe0334208" />
 
 
 ### Recursos Implementados
